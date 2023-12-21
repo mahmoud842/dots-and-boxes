@@ -1,11 +1,8 @@
 #ifndef structures
 #define structures
 
-#include <stdio.h>
-#include <stdlib.h>
-
 typedef struct cell{
-    // any of the sides if equal to 1 then there is a line there.
+    // any of the sides if equal to 1 then there is a line there, if 0 then there is no line.
     char up;
     char down;
     char right;
@@ -17,8 +14,8 @@ typedef struct cell{
 } cell;
 
 typedef struct state{
-    // the board is intialized as 5x5 because I wanted the struct to has a constent size for reading and writing to files.
-    cell grid[5][5];
+    char gridSize; // diminsions
+    cell ** grid; // grid actuall size in bytes = sizeof(cell) * height * width (for loading and writing to files)
 
     char turn; // if 0 then player 1's turn, if 1 than the player 2's turn.
 
@@ -44,5 +41,19 @@ typedef struct options{
     // hasn't defined any levels for it yet.
     char AIDifficulty;
 } options;
+
+// constructors, intialize and free for each structure:
+// cell:
+cell * constructCell();
+
+cell * intialize(cell * c, char u, char d, char r, char l, char own);
+
+void freeCell(cell * c);
+
+// state:
+// size of grid = 5 if you want 5x5, size = 2 if you want 2x2 and so on.
+state * constructState(int sizeOfGrid);
+
+void freeState(state * s);
 
 #endif
