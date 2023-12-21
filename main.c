@@ -19,5 +19,9 @@ int main(){
         printf("\n");
     }
     freeState(s);
+
+    char t[] = "scores.csv";
+    int num = checkFileAvailable(t);
+    printf("%d\n", num);
     return 0;
 }

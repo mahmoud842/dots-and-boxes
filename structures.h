@@ -1,6 +1,8 @@
 #ifndef structures
 #define structures
 
+#define MAX_CHAR_OF_NAME 20
+
 typedef struct cell{
     // any of the sides if equal to 1 then there is a line there, if 0 then there is no line.
     char up;
@@ -42,7 +44,23 @@ typedef struct options{
     char AIDifficulty;
 } options;
 
+// max size of a name is 20 chars (letters and spaces only)
+typedef struct userScore{
+    char * name;
+    int score;
+} userScore;
+
+typedef struct scores{
+    int numberOfUsers;
+    userScore * usersScores;
+} scores;
+
 // constructors, intialize and free for each structure:
+// scores:
+void freeScores(scores * s);
+
+scores * constructScores();
+
 // cell:
 cell * constructCell();
 

@@ -44,3 +44,22 @@ void freeState(state * s){
     free(s->grid);
     free(s);
 }
+
+void freeScores(scores * s){
+    for (int i = 0; i < s->numberOfUsers; i++){
+        free(s->usersScores[i].name);
+    }
+    free(s->usersScores);
+    free(s);
+}
+
+// num instead of number because numberOfUsers is defined in the scores structure.
+scores * constructScores(int numOfUsers){
+    scores * scoresPtr = (scores *)malloc(sizeof(scores));
+    scoresPtr->numberOfUsers = numOfUsers;
+    scoresPtr->usersScores = (userScore *)malloc(numOfUsers * sizeof(userScore));
+    for (int i = 0; i < numOfUsers; i++){
+        scoresPtr->usersScores[i].name = (char *)malloc(MAX_CHAR_OF_NAME * sizeof(char));
+    }
+    return scoresPtr;
+}
