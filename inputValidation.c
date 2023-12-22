@@ -143,7 +143,7 @@ char * takeUserName(){
     char differentCharFlag = 0;
     do {
         if (overSize){
-            printf("your name should be not more than %d\n", MAX_CHAR_OF_NAME);
+            printf("your name should be not more than %d\n", MAX_CHAR_OF_NAME - 1);
         }
         if (differentCharFlag){
             printf("your name should consist of letters or space only (note: if there is more than one space next to each other only one is taken)\n");
