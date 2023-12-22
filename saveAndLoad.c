@@ -4,39 +4,48 @@
 #include <stdlib.h>
 #include "structures.h"
 
-#define BUFFERS_MAX_SIZE 200
 
 // return number of lines
 char checkFileAvailable(char * fileName){
     FILE *file;
-    if ((file = fopen(fileName, "r")))
+    if (file = fopen(fileName, "rb"))
     {
         int counter = 0;
-        char buffer[40];
-        while (fgets(buffer, 40, file))
+        char nameBuffer[MAX_CHAR_OF_NAME];
+        while (fread(nameBuffer, sizeof(char), MAX_CHAR_OF_NAME, file)){
+            int tmp;
+            fread(&tmp, sizeof(int), 1, file);
             counter++;
+        }
         fclose(file);
         return counter;
     }
     return 0;
 }
 
-char toLowerCase(char c){
-    if (c >= 'A' && c <= 'Z'){
-        return c + 32;
+void addUserScoreToFile(char * fileName, char * userName, int score){
+    FILE * file;
+    if (file = fopen(fileName, "ab")){
+        fwrite((void *)userName, sizeof(char) * MAX_CHAR_OF_NAME, 1, file);
+        fwrite((void *)&score, sizeof(int), 1, file);
     }
-    return c;
+    else {
+        printf("%s \n", "error");
+    }
+    fclose(file);
 }
 
-char isLetterOrSpace(char c){
-    if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c == ' ')
-        return 1;
-    return 0;
+// both strings are the same size. (MAX_CHAR_OF_NAME)
+// copy right to left.
+void copyStrToStr(char * s1, char * s2){
+    for (int i = 0; i < MAX_CHAR_OF_NAME; i++){
+        s1[i] = s2[i];
+    }
 }
 
 // incomplete
 // I need to check if this file has been corapted.
-scores * loadScores(char * fileName){
+scores * loadScoresFromFile(char * fileName){
     // num instead of number because numberOfUsers is defined in the scores structure.
     int numOfUsers = checkFileAvailable(fileName);
     if (numOfUsers == 0) return NULL;
@@ -45,26 +54,18 @@ scores * loadScores(char * fileName){
     scores * scoresPtr = constructScores(numOfUsers);
 
     FILE * file;
-    file = fopen(fileName, "r");
-    char buffer[40];
-    int userIndex = 0;
-    while (fgets(buffer, 40, file)){
-        int p = 0;
-        char scoreBUFF[] = "000000";
-        int i = 0;
-        
-        // some flags to clean data if corapted.
-        char spaceFlag = 1;
+    file = fopen(fileName, "rb");
 
-        for (; buffer[p] != ','; p++){
-            if (!isLetterOrSpace(buffer[p])) continue;
-            if (spaceFlag && buffer[p] == ' ') continue;
+    for (int i = 0; i < numOfUsers; i++){
+        char nameBuffer[MAX_CHAR_OF_NAME];
+        int tmpScore;
+        fread((void *)nameBuffer, sizeof(char), 20, file);
+        fread((void *)&tmpScore, sizeof(int), 1, file);
 
-            if (isLetterOrSpace(buffer[p])){
-                scoresPtr->usersScores[userIndex].name[i] = toLowerCase(buffer[p]);
-            }
-            i++;
-        }
-
+        copyStrToStr(scoresPtr->usersScores[i].name, nameBuffer);
+        scoresPtr->usersScores[i].score = tmpScore; 
     }
+    fclose(file);
+    return scoresPtr;
+    
 }
