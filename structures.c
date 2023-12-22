@@ -63,3 +63,13 @@ scores * constructScores(int numOfUsers){
     }
     return scoresPtr;
 }
+
+void intializeOptionsWith0(options * gameOptions){
+    gameOptions->start = 0;
+    gameOptions->loadGame = 0;
+    gameOptions->displayTopTen = 0;
+    gameOptions->exit = 0;
+    gameOptions->gameMode = 0;
+    gameOptions->AIDifficulty = 0;
+    gameOptions->gridSize = 0;
+}
