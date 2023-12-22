@@ -59,7 +59,7 @@ scores * loadScoresFromFile(char * fileName){
     for (int i = 0; i < numOfUsers; i++){
         char nameBuffer[MAX_CHAR_OF_NAME];
         int tmpScore;
-        fread((void *)nameBuffer, sizeof(char), 20, file);
+        fread((void *)nameBuffer, sizeof(char), MAX_CHAR_OF_NAME, file);
         fread((void *)&tmpScore, sizeof(int), 1, file);
 
         copyStrToStr(scoresPtr->usersScores[i].name, nameBuffer);

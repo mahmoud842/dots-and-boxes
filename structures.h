@@ -1,7 +1,7 @@
 #ifndef structures
 #define structures
 
-#define MAX_CHAR_OF_NAME 20
+#define MAX_CHAR_OF_NAME 21
 
 typedef struct cell{
     // any of the sides if equal to 1 then there is a line there, if 0 then there is no line.
