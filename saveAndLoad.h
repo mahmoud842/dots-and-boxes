@@ -9,5 +9,6 @@
 char checkFileAvailable(char * fileName);
 void addUserScoreToFile(char * fileName, char * userName, int score);
 scores * loadScoresFromFile(char * fileName);
+scores * loadAndSortScores(char * fileName);
 
 #endif
