@@ -10,16 +10,41 @@
 // run: ./dotsAndLines
 
 int main(){
-    printf("hello\n");
-    state * s = constructState(5);
-    for (int i = 0; i < s->gridSize; i++){
-        for (int j = 0; j < s->gridSize; j++){
-            printf("(%d, %d, %d, %d, %d) ", s->grid[i][j].up, s->grid[i][j].down, s->grid[i][j].right, s->grid[i][j].left, s->grid[i][j].owner);
-        }
-        printf("\n");
-    }
-    freeState(s);
+    char leaderBoardFile[] = "highScores.bin";
+    char saveGameFilesNames[5][14] = {"savegame1.bin", "savegame2.bin", "savegame3.bin", "savegame4.bin", "savegame5.bin"};
+    options * gameOptions = (options *)malloc(sizeof(options));
 
+    while(1){
+        intializeOptionsWith0(gameOptions);
+        displayMainMenu(gameOptions);
+        if (gameOptions->start){
+            if (gameOptions->gameMode == 1){
+
+            }
+            else if (gameOptions->gameMode == 2){
+
+            }
+            else {
+                printf("error 1\n");
+                return 1;
+            }
+        }
+        else if (gameOptions->loadGame){
+
+        }
+        else if(gameOptions->displayTopTen){
+
+        }
+        else if(gameOptions->exit){
+            printf("Thank You for playing the game\n");
+            break;
+        }
+        else {
+            // this condition was made to for debugging unlikly to happen in the game.
+            printf("error happened in the first gamee options input\n");
+            break;
+        }
+    }
 
     return 0;
 }

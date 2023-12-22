@@ -12,6 +12,7 @@ void AIDiff(options *startGame);
 
 void displayMainMenu(options *startGame){
 
+    system("cls");
     printf("Start a new game : 1\n");
     printf("Load game : 2\n");
     printf("Display top 10 : 3\n");
@@ -38,6 +39,7 @@ void displayMainMenu(options *startGame){
 }
 
 void newGameMenu(options *startGame) {
+    system("cls");
     printf("Choose difficulty:\n");
     printf("Beginner 2*2: 1\n");;
     printf("Expert 5*5: 2\n");
@@ -56,6 +58,7 @@ void newGameMenu(options *startGame) {
 }
 
 void gameModeMenu(options *startGame){
+    system("cls");
     printf("Choose game mode:\n");
     printf("Human: 1\n");;
     printf("AI: 2\n");
@@ -74,8 +77,9 @@ void gameModeMenu(options *startGame){
 }
 
 void AIDiff(options *startGame){
+    system("cls");
     printf("Choose AI difficulty:\n");
-    printf("Easy: 1\n");;
+    printf("Easy: 1\n");
     printf("Hard: 2\n");
 
     int aiDiff = mainMenuInput(2);

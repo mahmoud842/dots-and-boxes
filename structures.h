@@ -65,20 +65,18 @@ typedef struct scores{
 // constructors, intialize and free for each structure:
 // scores:
 void freeScores(scores * s);
-
 scores * constructScores();
 
 // cell:
 cell * constructCell();
-
 cell * intialize(cell * c, char u, char d, char r, char l, char own);
-
 void freeCell(cell * c);
 
 // state:
 // size of grid = 5 if you want 5x5, size = 2 if you want 2x2 and so on.
 state * constructState(int sizeOfGrid);
-
 void freeState(state * s);
+
+void intializeOptionsWith0(options * gameOptions);
 
 #endif
