@@ -48,3 +48,16 @@ int mainMenuInput(int numOfOptions){
     printf("error happened in mainMenuInput !\n");
     return -1;
 }
+
+char toLowerCase(char c){
+    if (c >= 'A' && c <= 'Z'){
+        return c + 32;
+    }
+    return c;
+}
+
+char isLetterOrSpace(char c){
+    if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z' || c == ' ')
+        return 1;
+    return 0;
+}
