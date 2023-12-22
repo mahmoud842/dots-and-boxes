@@ -5,34 +5,85 @@
 #include "structures.h"
 
 
-// return number of lines
-char checkFileAvailable(char * fileName){
-    FILE *file;
-    if (file = fopen(fileName, "rb"))
-    {
-        int counter = 0;
-        char nameBuffer[MAX_CHAR_OF_NAME];
-        while (fread(nameBuffer, sizeof(char), MAX_CHAR_OF_NAME, file)){
-            int tmp;
-            fread(&tmp, sizeof(int), 1, file);
-            counter++;
+// this function returns 1 if the file is corrupted or doesn't exist
+char checkFileCorruption(char * fileName){
+    FILE * file;
+    if(file = fopen(fileName, "rb")){
+        fseek(file, 0, SEEK_END);
+        long size = ftell(file);   // Get the current position (file size)
+        fseek(file, 0, SEEK_SET);  // Reset the file position indicator to the beginning
+
+        // (size - 4) the check sum size and (MAX_CHAR.. + 4) the total size of name and socre.
+        if ((size - 4) % (MAX_CHAR_OF_NAME + 4) != 0 || size == 0){
+            fclose(file);
+            return 1;
         }
+
+        int checksum = 0;
+        int tmp = (size - 4) / (MAX_CHAR_OF_NAME + 4);
+        int tmpScore;
+        for (int i = 0; i < tmp; i++){
+            fseek(file, MAX_CHAR_OF_NAME, SEEK_CUR);
+            fread(&tmpScore, sizeof(int), 1, file);
+            checksum ^= tmpScore;
+        }
+
+        int fileCheckSum;
+        fread(&fileCheckSum, sizeof(int), 1, file);
         fclose(file);
-        return counter;
+        if (fileCheckSum != checksum){
+            return 1;
+        }
+        return 0;
     }
-    return 0;
+    return 1;
+}
+
+// return number of lines
+int checkFileAvailable(char * fileName){
+    if (checkFileCorruption(fileName)){
+        return 0;
+    }
+
+    FILE * file;
+    file = fopen(fileName, "rb");
+    fseek(file, 0, SEEK_END);
+    long size = ftell(file);   // Get the current position (file size)
+    fclose(file);
+    return (size - 4) / (MAX_CHAR_OF_NAME + 4);
 }
 
 void addUserScoreToFile(char * fileName, char * userName, int score){
+    char checksumFlag = 1; // 1 means there is a check sum and i can seek -4
+    if (checkFileCorruption(fileName)){
+        checksumFlag = 0;
+    }
+
     FILE * file;
-    if (file = fopen(fileName, "ab")){
-        fwrite((void *)userName, sizeof(char) * MAX_CHAR_OF_NAME, 1, file);
-        fwrite((void *)&score, sizeof(int), 1, file);
+    int checksum = 0;
+    // read the checksum first if there
+    if (checksumFlag){
+        file = fopen(fileName, "rb");
+        // Move the file position indicator to 4 bytes before the end
+        fseek(file, -4, SEEK_END);
+        fread(&checksum, sizeof(int), 1, file);
+        fclose(file);
+    }
+
+    if (checksumFlag){
+        file = fopen(fileName, "r+b");
+        fseek(file, -4, SEEK_END);
     }
     else {
-        printf("%s \n", "error");
+        file = fopen(fileName, "ab");
+        fseek(file, 0, SEEK_END);
     }
+    fwrite((void *)userName, sizeof(char) * MAX_CHAR_OF_NAME, 1, file);
+    fwrite((void *)&score, sizeof(int), 1, file);
+    checksum ^= score;
+    fwrite(&checksum, sizeof(int), 1, file);
     fclose(file);
+    
 }
 
 // both strings are the same size. (MAX_CHAR_OF_NAME)
@@ -43,9 +94,6 @@ void copyStrToStr(char * s1, char * s2){
     }
 }
 
-// incomplete
-// I need to check if this file has been corrupted.
-// this function returns NULL if the file is corrupted or empty or doesn't exist.
 scores * loadScoresFromFile(char * fileName){
     // num instead of number because numberOfUsers is defined in the scores structure.
     int numOfUsers = checkFileAvailable(fileName);
@@ -81,6 +129,8 @@ void swapUserScores(userScore * ptr1, userScore * ptr2){
 
     ptr2->name = tmp->name;
     ptr2->score = tmp->score;
+
+    free(tmp);
 }
 
 // this function load and sort the scores from the file and if the file doesn't exist or corrupted or empty returns NULL.
