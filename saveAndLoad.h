@@ -11,5 +11,6 @@ char checkScoresFileCorruption(char * fileName);
 void addUserScoreToFile(char * fileName, char * userName, int score);
 scores * loadScoresFromFile(char * fileName);
 scores * loadAndSortScores(char * fileName);
+char saveScoresToFile(char * fileName, scores * _scores);
 
 #endif

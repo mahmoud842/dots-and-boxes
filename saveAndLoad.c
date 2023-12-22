@@ -53,6 +53,7 @@ int checkScoresFileAvailable(char * fileName){
     return (size - 4) / (MAX_CHAR_OF_NAME + 4);
 }
 
+// will be used if the number of users is less than the max number in the leader board
 void addUserScoreToFile(char * fileName, char * userName, int score){
     char checksumFlag = 1; // 1 means there is a check sum and i can seek -4
     if (checkScoresFileCorruption(fileName)){
@@ -145,4 +146,17 @@ scores * loadAndSortScores(char * fileName){
         }
     }
     return s;
+}
+
+char saveScoresToFile(char * fileName, scores * _scores){
+    int checksum = 0;
+    int n = _scores->numberOfUsers;
+    FILE * file = fopen(fileName, "wb");
+    for (int i = 0; i < n; i++){
+        fwrite(_scores->usersScores[i].name, sizeof(char), MAX_CHAR_OF_NAME, file);
+        fwrite(&_scores->usersScores[i].score, sizeof(int), 1, file);
+        checksum ^= _scores->usersScores[i].score;
+    }
+    fwrite(&checksum, sizeof(int), 1, file);
+    fclose(file);
 }
