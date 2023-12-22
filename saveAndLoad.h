@@ -15,8 +15,7 @@ scores * loadScoresFromFile(char * fileName);
 scores * loadAndSortScores(char * fileName);
 char saveScoresToFile(char * fileName, scores * _scores);
 char * checkAvailableStateFiles(char ** _fileNames, char * _availableSaveGameFiles);
-char * saveStateToFile(char * _fileName, state * _state);
+char saveStateToFile(char * _fileName, state * _state);
 state * loadStateFromFile(char * _fileName);
-char * checkStateFileCorrupted(char * _fileName);
 
 #endif
