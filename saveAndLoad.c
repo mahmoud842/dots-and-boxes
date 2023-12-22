@@ -6,7 +6,7 @@
 
 
 // this function returns 1 if the file is corrupted or doesn't exist
-char checkFileCorruption(char * fileName){
+char checkScoresFileCorruption(char * fileName){
     FILE * file;
     if(file = fopen(fileName, "rb")){
         fseek(file, 0, SEEK_END);
@@ -40,8 +40,8 @@ char checkFileCorruption(char * fileName){
 }
 
 // return number of lines
-int checkFileAvailable(char * fileName){
-    if (checkFileCorruption(fileName)){
+int checkScoresFileAvailable(char * fileName){
+    if (checkScoresFileCorruption(fileName)){
         return 0;
     }
 
@@ -55,7 +55,7 @@ int checkFileAvailable(char * fileName){
 
 void addUserScoreToFile(char * fileName, char * userName, int score){
     char checksumFlag = 1; // 1 means there is a check sum and i can seek -4
-    if (checkFileCorruption(fileName)){
+    if (checkScoresFileCorruption(fileName)){
         checksumFlag = 0;
     }
 
@@ -96,7 +96,7 @@ void copyStrToStr(char * s1, char * s2){
 
 scores * loadScoresFromFile(char * fileName){
     // num instead of number because numberOfUsers is defined in the scores structure.
-    int numOfUsers = checkFileAvailable(fileName);
+    int numOfUsers = checkScoresFileAvailable(fileName);
     if (numOfUsers == 0) return NULL;
 
     // construct the scores:
