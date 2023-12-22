@@ -17,6 +17,7 @@ typedef struct cell{
 
 typedef struct state{
     char gridSize; // diminsions
+    int time; // number of sec passed and then we will calculate the minutes from it.
     cell ** grid; // grid actuall size in bytes = sizeof(cell) * height * width (for loading and writing to files)
 
     char turn; // if 0 then player 1's turn, if 1 than the player 2's turn.
@@ -27,7 +28,6 @@ typedef struct state{
     char p1Moves;
     char p2Moves;
 
-    int time; // number of sec passed and then we will calculate the minutes from it.
     int numberOfRemainingCells; // number of remaining incomplete cells
 
 } state;

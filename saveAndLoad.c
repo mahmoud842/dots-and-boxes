@@ -160,3 +160,33 @@ char saveScoresToFile(char * fileName, scores * _scores){
     fwrite(&checksum, sizeof(int), 1, file);
     fclose(file);
 }
+
+// savegamei
+char * checkAvailableStateFiles(char ** _fileNames, char * _availableSaveGameFiles){
+    FILE * file;
+    int count = 0;
+    for (int i = 0; i < NUM_SAVEGAME_FILES; i++){
+        file = fopen(_fileNames[i], "rb");
+        if (file != NULL){
+            count++;
+            _availableSaveGameFiles[i] = 1;
+            fclose(file);
+        }
+        else{
+            _availableSaveGameFiles[i] = 0;
+        }
+    }
+    return 0;
+}
+
+char * checkStateFileCorrupted(char * _fileName){
+    
+}
+
+char * saveStateToFile(char * _fileName, state * _state){
+
+}
+
+state * loadStateFromFile(char * _fileName){
+
+}
