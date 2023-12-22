@@ -33,15 +33,21 @@ typedef struct state{
 } state;
 
 typedef struct options{
-    // 0 for player vs player, 1 for player vs AI.
-    char gameMode;
-
+    char start;  //starting a new game if 1 so it is chosen otherwise not chosen
     // the actuall used size from the grid.
-    char gridSize;
+    char gridSize;  //takes 2 for Beginner or 5 for expert 
 
+    // 1 for player vs player, 2 for player vs AI.
+    char gameMode;
     // for different levels of AI.
     // hasn't defined any levels for it yet.
-    char AIDifficulty;
+    char AIDifficulty;  // 1 for easy 2 for hard maybe updated
+
+    char loadGame;   //chose loaded game if 1 so it is chosen otherwise not chosen
+    
+    char displayTopTen;  // chose to display top 10 if 1 so it is chosen otherwise not chosen
+
+    char exit;
 } options;
 
 // max size of a name is 20 chars (letters and spaces only)
