@@ -29,7 +29,7 @@ state * constructState(int sizeOfGrid){
     state * s = calloc(1, sizeof(state));
     
     s->grid = (cell **)malloc(sizeOfGrid * sizeof(cell *));
-    for (int i = 0; i < 5; i++){
+    for (int i = 0; i < sizeOfGrid; i++){
         // I used calloc bec it intializes with zero and no need for me to intialize it
         s->grid[i] = (cell *)calloc(sizeOfGrid, sizeof(cell));
     }
