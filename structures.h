@@ -17,7 +17,7 @@ typedef struct cell{
 
 typedef struct state{
     char gridSize; // diminsions
-    char gameMode; // 0 for human, 1 for AI
+    char gameMode; // 0 for human, 1 for AI easy, 2 for AI hard
     int time; // number of sec passed and then we will calculate the minutes from it.
     cell ** grid; // grid actuall size in bytes = sizeof(cell) * height * width (for loading and writing to files)
 
@@ -40,8 +40,8 @@ typedef struct options{
 
     // 1 for player vs player, 2 for player vs AI.
     char gameMode;
+    
     // for different levels of AI.
-    // hasn't defined any levels for it yet.
     char AIDifficulty;  // 1 for easy 2 for hard maybe updated
 
     char loadGame;   //chose loaded game if 1 so it is chosen otherwise not chosen
@@ -76,6 +76,8 @@ void freeCell(cell * c);
 // size of grid = 5 if you want 5x5, size = 2 if you want 2x2 and so on.
 state * constructState(int sizeOfGrid);
 void freeState(state * s);
+char applyStateAction(char * action, char playerTurn, state * s);
+state * copyState(state * s);
 
 void intializeOptionsWith0(options * gameOptions);
 

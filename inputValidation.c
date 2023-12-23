@@ -76,12 +76,12 @@ char isLetterOrSpace(char c){
 
 // input for: <x> <y> <letter>
 char * makeMoveInput(int gridSize){
-    char buffer[BUFSIZE];
+    char * buffer = (char *)malloc(BUFSIZE * sizeof(char));
     char errorFlag = 0;
     char outOfRange = 0;
     char sideFlag = 0;
     do {
-        if (errorFlag){
+        if (errorFlag || outOfRange || sideFlag){
             printf("invalid input! try again.\n");
             if (outOfRange) {
                 printf("your input should be from 1 to %d\n", gridSize);
@@ -96,9 +96,8 @@ char * makeMoveInput(int gridSize){
         fgets(buffer, 257, stdin);
         int inputSize = strlen(buffer);   
 
-        if (inputSize == 1){
+        if (inputSize < 6){
             errorFlag = 1;
-            printf("nothing? ");
         }
 
         else if(inputSize > 6){
@@ -125,11 +124,12 @@ char * makeMoveInput(int gridSize){
                 move[0] = x;
                 move[1] = y;
                 move[2] = side;
+                free(buffer);
                 return move;
             }
         }
 
-    }while(errorFlag);
+    }while(errorFlag || outOfRange || sideFlag);
 
     printf("error happened in makeMoveInput !\n");
     return NULL;
