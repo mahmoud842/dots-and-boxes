@@ -4,5 +4,6 @@
 
 // options should be intialized with zeros
 void displayMainMenu(options *startGame);
+char displayInGameMenu();
 
 #endif

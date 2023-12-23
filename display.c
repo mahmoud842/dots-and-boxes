@@ -93,3 +93,19 @@ void AIDiff(options *startGame){
             break;
     }
 }
+
+char displayInGameMenu(){
+    // 1 for place a line
+    // 2 for undo
+    // 3 for redo
+    // 4 for save game
+    // 5 for main menu
+
+    printf("1) place line\n");
+    printf("2) place undo\n");
+    printf("3) place redo\n");
+    printf("4) place save game\n");
+    printf("5) place main menu\n");
+    
+    return mainMenuInput(5);
+}
