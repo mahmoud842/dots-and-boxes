@@ -191,3 +191,69 @@ void intializeOptionsWith0(options * gameOptions){
     gameOptions->AIDifficulty = 0;
     gameOptions->gridSize = 0;
 }
+
+// undoRedo:
+
+// each state size is 140 byte
+// if grid is 2x2 then max of 12 states will be made worst case memory = 12 * 140 = 1680 bytes (1.6 KB)
+// if grid is 5x5 then max of 60 states will be made worst case memory = 60 * 140 = 8400 bytes (8.2 KB)
+// this calculation without pointer sizes and others
+
+// 1) index = lastIndex : means that there is no redo and the current displayed state isn't in the stateArr
+// 2) index = lastIndex - 1: means that the displayed state is the lastIndex state and there is no redo
+// 3) index = -1 : means that there is no undo
+// 4) if index = i and user want redo then the redo is at index + 2
+
+undoRedo * constructUndoRedo(int gridSize, state * intialState){
+    undoRedo * u = (undoRedo *)malloc(sizeof(undoRedo));
+    u->maxCapacity = (gridSize == 2) ? 12 : 60;
+    u->index = 0;
+    u->lastIndex = 0;
+    u->stateArr = (state **)malloc(u->maxCapacity * sizeof(state *));
+    u->stateArr[0] = intialState;
+    return u;
+}
+
+void freeUndoRedo(undoRedo * u){
+    for (int i = 0; i <= u->lastIndex; i++){
+        freeState(u->stateArr[i]);
+    }
+    free(u->stateArr);
+    free(u);
+}
+
+void deleteRedo(undoRedo * u){
+    for (int i = u->index + 1; i <= u->lastIndex; i++){
+        freeState(u->stateArr[i]);
+    }
+    u->lastIndex = u->index;
+}
+
+// also deletes all redo
+void pushStateToRedoUndo(undoRedo * u, state * s){
+    deleteRedo(u);
+    u->stateArr[u->index + 1] = s;
+    u->index++;
+    u->lastIndex++;
+}
+
+state * getUndo(undoRedo * u){
+    if (u->index == 0){
+        return NULL;
+    }
+
+    state * s = u->stateArr[u->index - 1];
+    u->index--;
+    
+    return copyState(s);
+}
+
+state * getRedo(undoRedo * u){
+    if (u->lastIndex == u->index){
+        return NULL;
+    }
+
+    state * s = u->stateArr[u->index + 1];
+    u->index++;
+    return copyState(s);
+}

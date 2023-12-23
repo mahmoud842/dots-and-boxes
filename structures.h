@@ -21,7 +21,7 @@ typedef struct state{
     int time; // number of sec passed and then we will calculate the minutes from it.
     cell ** grid; // grid actuall size in bytes = sizeof(cell) * height * width (for loading and writing to files)
 
-    char turn; // if 0 then player 1's turn, if 1 than the player 2's turn.
+    char turn; // if 1 then player 1's turn, if 2 than the player 2's turn., 0 for AI
 
     // scores are made in char bec they can't pass 255 each;
     char p1Score;
@@ -40,7 +40,7 @@ typedef struct options{
 
     // 1 for player vs player, 2 for player vs AI.
     char gameMode;
-    
+
     // for different levels of AI.
     char AIDifficulty;  // 1 for easy 2 for hard maybe updated
 
@@ -61,6 +61,25 @@ typedef struct scores{
     int numberOfUsers;
     userScore * usersScores;
 } scores;
+
+
+// undo and redo structure
+typedef struct undoRedo{
+    int maxCapacity;
+    
+    int index; // point at the place where the next undo is
+    int lastIndex; // last used state in the stateArr
+    // lastIndex == index if there is no redo
+
+    state ** stateArr;
+} undoRedo;
+
+undoRedo * constructUndoRedo(int gridSize, state * intialState);
+void freeUndoRedo(undoRedo * u);
+void deleteRedo(undoRedo * u);
+void pushStateToRedoUndo(undoRedo * u, state * s);
+state * getUndo(undoRedo * u);
+state * getRedo(undoRedo * u);
 
 // constructors, intialize and free for each structure:
 // scores:
