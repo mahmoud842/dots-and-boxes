@@ -17,6 +17,7 @@ void theOwner(state *gameState , char row , char col);
 
 void displayMainMenu(options *startGame){
 
+    system("cls");
     printf("Start a new game : 1\n");
     printf("Load game : 2\n");
     printf("Display top 10 : 3\n");
@@ -43,6 +44,7 @@ void displayMainMenu(options *startGame){
 }
 
 void newGameMenu(options *startGame) {
+    system("cls");
     printf("Choose difficulty:\n");
     printf("Beginner 2*2: 1\n");;
     printf("Expert 5*5: 2\n");
@@ -61,6 +63,7 @@ void newGameMenu(options *startGame) {
 }
 
 void gameModeMenu(options *startGame){
+    system("cls");
     printf("Choose game mode:\n");
     printf("Human: 1\n");;
     printf("AI: 2\n");
@@ -79,6 +82,7 @@ void gameModeMenu(options *startGame){
 }
 
 void AIDiff(options *startGame){
+    system("cls");
     printf("Choose AI difficulty:\n");
     printf("Easy: 1\n");
     printf("Hard: 2\n");
@@ -223,4 +227,20 @@ void theOwner(state *gameState , char row , char col){
     }
 
 
+}
+
+char displayInGameMenu(){
+    // 1 for place a line
+    // 2 for undo
+    // 3 for redo
+    // 4 for save game
+    // 5 for main menu
+
+    printf("1) place line\n");
+    printf("2) place undo\n");
+    printf("3) place redo\n");
+    printf("4) place save game\n");
+    printf("5) place main menu\n");
+    
+    return mainMenuInput(5);
 }
