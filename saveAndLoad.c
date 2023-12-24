@@ -160,3 +160,149 @@ char saveScoresToFile(char * fileName, scores * _scores){
     fwrite(&checksum, sizeof(int), 1, file);
     fclose(file);
 }
+
+// savegamei
+char * checkAvailableStateFiles(char ** _fileNames, char * _availableSaveGameFiles){
+    FILE * file;
+    int count = 0;
+    for (int i = 0; i < NUM_SAVEGAME_FILES; i++){
+        file = fopen(_fileNames[i], "rb");
+        if (file != NULL){
+            count++;
+            _availableSaveGameFiles[i] = 1;
+            fclose(file);
+        }
+        else{
+            _availableSaveGameFiles[i] = 0;
+        }
+    }
+    return 0;
+}
+
+char saveStateToFile(char * _fileName, state * _state){
+    FILE * file = fopen(_fileName, "wb");
+    if (file != NULL){
+        // checksum is calculated and saved in the end of the file to check for corruption.
+        int checksum = 0;
+        checksum ^= _state->gridSize;
+        fwrite(&(_state->gridSize), sizeof(char), 1, file);
+
+        checksum ^= _state->gameMode;
+        fwrite(&(_state->gameMode), sizeof(char), 1, file);
+
+        checksum ^= _state->time;
+        fwrite(&(_state->time), sizeof(int), 1, file);
+
+        for (int i = 0; i < _state->gridSize; i++){
+            for (int j = 0; j < _state->gridSize; j++){
+                checksum ^= _state->grid[i][j].up;
+                checksum ^= _state->grid[i][j].down;
+                checksum ^= _state->grid[i][j].right;
+                checksum ^= _state->grid[i][j].left;
+                checksum ^= _state->grid[i][j].owner;
+                fwrite(&(_state->grid[i][j]), sizeof(cell), 1, file);
+            }
+        }
+
+        checksum ^= _state->turn;
+        fwrite(&(_state->turn), sizeof(char), 1, file);
+
+        checksum ^= _state->p1Score;
+        fwrite(&(_state->p1Score), sizeof(char), 1, file);
+
+        checksum ^= _state->p2Score;
+        fwrite(&(_state->p2Score), sizeof(char), 1, file);
+
+        checksum ^= _state->p1Moves;
+        fwrite(&(_state->p1Moves), sizeof(char), 1, file);
+
+        checksum ^= _state->p2Moves;
+        fwrite(&(_state->p2Moves), sizeof(char), 1, file);
+
+        checksum ^= _state->numberOfRemainingCells;
+        fwrite(&(_state->numberOfRemainingCells), sizeof(int), 1, file);
+
+        fwrite(&checksum, sizeof(int), 1, file);
+        fclose(file);
+        printf("saved checksum = %d\n", checksum);
+        return 1; // success
+    }
+    else {
+        return 0; // fail
+    }
+}
+
+// size of state if (gridSize = 5) is 144
+// size of state if (gridSize = 2) is 39
+// if state is corrupted return NULL.
+state * loadStateFromFile(char * _fileName){
+    FILE * file = fopen(_fileName, "rb");
+    if (file != NULL){
+        fseek(file, 0, SEEK_END);
+        long fileSize = ftell(file);
+        fseek(file, 0, SEEK_SET);
+        
+        int checksum = 0;
+        char sizeOfGrid = 0;
+        fread(&sizeOfGrid, sizeof(char), 1, file);
+        printf("file size = %d, sizeOfGrid = %d \n", fileSize, sizeOfGrid);
+
+        if ( !(sizeOfGrid == 2 || sizeOfGrid == 5) || (sizeOfGrid == 2 && fileSize != 39) || (sizeOfGrid == 5 && fileSize != 144)){
+            fclose(file);
+            return NULL;
+        }
+
+        state * _state = constructState(sizeOfGrid);
+        checksum ^= sizeOfGrid;
+
+        fread(&(_state->gameMode), sizeof(char), 1, file);
+        checksum ^= _state->gameMode;
+
+        fread(&(_state->time), sizeof(int), 1, file);
+        checksum ^= _state->time;
+
+        for (int i = 0; i < _state->gridSize; i++){
+            for (int j = 0; j < _state->gridSize; j++){
+                fread(&(_state->grid[i][j]), sizeof(cell), 1, file);
+                checksum ^= _state->grid[i][j].up;
+                checksum ^= _state->grid[i][j].down;
+                checksum ^= _state->grid[i][j].right;
+                checksum ^= _state->grid[i][j].left;
+                checksum ^= _state->grid[i][j].owner;
+            }
+        }
+
+        fread(&(_state->turn), sizeof(char), 1, file);
+        checksum ^= _state->turn;
+
+        fread(&(_state->p1Score), sizeof(char), 1, file);
+        checksum ^= _state->p1Score;
+
+        fread(&(_state->p2Score), sizeof(char), 1, file);
+        checksum ^= _state->p2Score;
+
+        fread(&(_state->p1Moves), sizeof(char), 1, file);
+        checksum ^= _state->p1Moves;
+
+        fread(&(_state->p2Moves), sizeof(char), 1, file);
+        checksum ^= _state->p2Moves;
+
+        fread(&(_state->numberOfRemainingCells), sizeof(int), 1, file);
+        checksum ^= _state->numberOfRemainingCells;
+
+        int fileCheckSum;
+        fread(&fileCheckSum, sizeof(int), 1, file);
+        printf("file checksum = %d, calculated checksum = %d\n", fileCheckSum, checksum);
+        if (fileCheckSum != checksum){
+            freeState(_state);
+            fclose(file);
+            return NULL;
+        }
+        else {
+            fclose(file);
+            return _state;
+        }
+    }
+    
+    return NULL;
+}
