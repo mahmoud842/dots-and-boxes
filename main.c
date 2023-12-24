@@ -10,16 +10,30 @@
 // run: ./dotsAndLines
 
 int main(){
-    printf("hello\n");
-    state * s = constructState(5);
-    for (int i = 0; i < s->gridSize; i++){
-        for (int j = 0; j < s->gridSize; j++){
-            printf("(%d, %d, %d, %d, %d) ", s->grid[i][j].up, s->grid[i][j].down, s->grid[i][j].right, s->grid[i][j].left, s->grid[i][j].owner);
-        }
-        printf("\n");
+
+    state *myState = constructState(5);
+    char *move ;
+    
+   
+    for (int i = 0; i < 4; i++)
+    {
+        myState->turn = 1;
+        move = makeMoveInput(5);
+        initializeNearByCell(myState,move[0]-1, move[1]-1 , move[2]);
+        
+        
+        
     }
-    freeState(s);
-
-
+        for (int i = 0; i < 4; i++)
+    {
+        myState->turn = 0;
+        move = makeMoveInput(5);
+        initializeNearByCell(myState,move[0]-1, move[1]-1 , move[2]);
+        
+        
+        
+    }
+    
+    displayState(myState);
     return 0;
 }
