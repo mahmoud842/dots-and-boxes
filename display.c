@@ -145,7 +145,7 @@ void displayState(state *gameState) {
         printf(BLUE"P2 Turn\t\t"RESET);
     }
 
-    printf("Remaining Boxes : %d\n",gameState->gridSize * gameState->gridSize-gameState->numberOfRemainingCells); // we will change the name 
+    printf("Remaining Boxes : %d\n", gameState->numberOfRemainingCells); // we will change the name 
     
     int min = gameState->time / 60 , sec = gameState->time % 60;    // i don't think we will need hours unless the time still working after saveing
 
@@ -160,8 +160,12 @@ void displayState(state *gameState) {
            
             printf("+");
             if (gameState->grid[i][j].up == 1) {
-                printf(YELLOW"---"RESET);
-            } else {
+                printf(RED"---"RESET);
+            }
+            else if (gameState->grid[i][j].up == 2){
+                printf(BLUE"---"RESET);
+            } 
+            else {
                 printf("   ");
             }
         }
@@ -169,15 +173,19 @@ void displayState(state *gameState) {
 
         for (int j = 0; j < gameState->gridSize; j++) {  
             if (gameState->grid[i][j].left == 1) {
-                printf(YELLOW"|"RESET);                      // maybe modified to have a fixed color for each player   
-            } else {
+                printf(RED"|"RESET);                      // maybe modified to have a fixed color for each player   
+            }
+            else if (gameState->grid[i][j].left == 2){
+                printf(BLUE"|"RESET);
+            }
+            else {
                 printf(" ");
             }
 
             if (gameState->grid[i][j].owner == 1) {
-                printf(RED"P 1"RESET);
+                printf("\033[41m   \033[0m");
             } else if (gameState->grid[i][j].owner == 2) {
-                printf(BLUE"P 2"RESET);
+                printf("\033[44m   \033[0m");
             } else { 
                 printf("   ");
             }
@@ -186,8 +194,11 @@ void displayState(state *gameState) {
         }
             if (gameState->grid[i][gameState->gridSize - 1].right == 1)
             {
-                printf(YELLOW"|"RESET);
-            }else{
+                printf(RED"|"RESET);
+            } else if(gameState->grid[i][gameState->gridSize - 1].right == 2){
+                printf(BLUE"|"RESET);
+            }
+            else{
                 printf(" ");
             }
             
@@ -198,8 +209,11 @@ void displayState(state *gameState) {
     for (int j = 0; j < gameState->gridSize; j++) {
         printf("+");
         if (gameState->grid[gameState->gridSize - 1][j].down == 1) {
-            printf(YELLOW"---"RESET);
-        } else {
+            printf(RED"---"RESET);
+        } else if (gameState->grid[gameState->gridSize - 1][j].down == 2) {
+            printf(BLUE"---"RESET);
+        }
+        else {
             printf("   ");
         }
     }
