@@ -227,7 +227,6 @@ state * loadStateFromFile(char * _fileName){
         int checksum = 0;
         char sizeOfGrid = 0;
         fread(&sizeOfGrid, sizeof(char), 1, file);
-        printf("file size = %d, sizeOfGrid = %d \n", fileSize, sizeOfGrid);
 
         if ( !(sizeOfGrid == 2 || sizeOfGrid == 5) || (sizeOfGrid == 2 && fileSize != 39) || (sizeOfGrid == 5 && fileSize != 144)){
             fclose(file);
@@ -274,7 +273,6 @@ state * loadStateFromFile(char * _fileName){
 
         int fileCheckSum;
         fread(&fileCheckSum, sizeof(int), 1, file);
-        printf("file checksum = %d, calculated checksum = %d\n", fileCheckSum, checksum);
         if (fileCheckSum != checksum){
             freeState(_state);
             fclose(file);
@@ -285,7 +283,6 @@ state * loadStateFromFile(char * _fileName){
             return _state;
         }
     }
-    
     return NULL;
 }
 
