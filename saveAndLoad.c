@@ -162,7 +162,7 @@ char saveScoresToFile(char * fileName, scores * _scores){
 }
 
 // savegamei
-char * checkAvailableStateFiles(char ** _fileNames, char * _availableSaveGameFiles){
+char * checkAvailableStateFiles(char _fileNames[][14], char * _availableSaveGameFiles){
     FILE * file;
     int count = 0;
     for (int i = 0; i < NUM_SAVEGAME_FILES; i++){
@@ -305,4 +305,44 @@ state * loadStateFromFile(char * _fileName){
     }
     
     return NULL;
+}
+
+// copy left to right
+void copyStr(char * name1, char * name2){
+    for (int i = 0; i < MAX_CHAR_OF_NAME - 1; i++){
+        name2[i] = name1[i];
+    }
+    name2[MAX_CHAR_OF_NAME - 1] = '\0';
+}
+
+// should return 1 if the user in the leader board the the board is updated and 0 otherwise
+// but now the function doesn't have a max number of 10
+scores * addUserToScores(scores * s, char * userName, char score){
+    if (s == NULL){
+        s = constructScores(1);
+        copyStr(userName, s->usersScores[0].name);
+        s->usersScores[0].score = score;
+        return s;
+    }
+
+    scores * newScores = constructScores(s->numberOfUsers + 1);
+    char userInserted = 0;
+
+    int i = 0; // points on new score
+    int p = 0; // points on old score 
+    for (; i < newScores->numberOfUsers; i++){
+        if ((i == newScores->numberOfUsers - 1 && !userInserted) || (s->usersScores[p].score < score && !userInserted)){
+            newScores->usersScores[i].score = score;
+            newScores->usersScores[i].name = userName;
+        }
+        else {
+            copyStr(newScores->usersScores[i].name, s->usersScores[p].name);
+            newScores->usersScores[i].score = s->usersScores[p].score;
+            p++;
+        }
+    }
+
+    freeScores(s);
+    return newScores;
+
 }

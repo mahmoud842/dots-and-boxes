@@ -3,12 +3,6 @@
 #include <stdlib.h>
 #include "structures.h"
 #include "inputValidation.h"
-#define BLUE "\x1b[34m"
-#define RESET "\x1b[0m"
-#define RED "\x1b[31m"
-#define YELLOW "\x1b[33m"
-
-
 
 void newGameMenu(options *startGame);
 void gameModeMenu(options *startGame);
@@ -139,7 +133,7 @@ void initializeNearByCell(state *gridPosition, int row, int col , char s) { // g
 void displayState(state *gameState) {
    
    
-    if (gameState->turn == 0) {          // maybe it will be a mistake here cause it display the player who played last game
+    if (gameState->turn == 1) {          // maybe it will be a mistake here cause it display the player who played last game
         printf(RED"P1 Turn\t\t"RESET);  
     } else {
         printf(BLUE"P2 Turn\t\t"RESET);
@@ -257,4 +251,45 @@ char displayInGameMenu(){
     printf("5) place main menu\n");
     
     return mainMenuInput(5);
+}
+
+char displayAvailableFilesForState(char fileNames[][14], char * availableFiles){
+    for (int i = 0; i < 5; i++){
+        printf("%d %s ", i + 1, fileNames[i]);
+        if (availableFiles[i]){
+            printf(RED"occupied\n"RESET);
+        }
+        else {
+            printf(BLUE"empty\n"RESET);
+        }
+    }
+
+    char fileChoosen = 0;
+    char anotherFlag = 0;
+    char input1;
+    do {
+        if (anotherFlag){
+            printf("choose another file\n");
+            anotherFlag = 0;
+        }
+        printf("insert the number of the file you want to save to: ");
+        input1 = mainMenuInput(5);
+        input1--;
+
+        if (availableFiles[input1]){
+            printf("are you sure you want to over right this file (1 for yes, 2 for no)");
+            char input2 = mainMenuInput(2);
+            if (input2 == 1){
+                fileChoosen = 1;
+            }
+            else {
+                anotherFlag = 1;
+            }
+        }
+        else {
+            fileChoosen = 1;
+        }
+    } while(!fileChoosen);
+
+    return input1;
 }
