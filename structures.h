@@ -85,6 +85,9 @@ state * getRedo(undoRedo * u);
 // scores:
 void freeScores(scores * s);
 scores * constructScores();
+char userInScores(scores * s, char * userName, int score, int * index);
+void sortScores(scores * s);
+int putInPosition(scores * s, int index);
 
 // cell:
 cell * constructCell();

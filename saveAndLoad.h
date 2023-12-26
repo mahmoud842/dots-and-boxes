@@ -17,6 +17,6 @@ char saveScoresToFile(char * fileName, scores * _scores);
 char * checkAvailableStateFiles(char _fileNames[][14], char * _availableSaveGameFiles);
 char saveStateToFile(char * _fileName, state * _state);
 state * loadStateFromFile(char * _fileName);
-scores * addUserToScores(scores * s, char * userName, char score);
+scores * addUserToScores(scores * s, char * userName, int score, int * index);
 
 #endif
