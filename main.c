@@ -5,6 +5,7 @@
 #include "inputValidation.h"
 #include "display.h"
 #include "saveAndLoad.h"
+#include "ai.h"
 
 // compile command:
 // gcc main.c structures.c inputValidation.c display.c saveAndLoad.c ai.c -o dotsAndLines
@@ -171,7 +172,7 @@ int * startGame(state * s, options * gameOptions){
         }
 
         if (saveGameFlag){
-            printf(YELLOW"game saved uccessfully\n"RESET);
+            printf(YELLOW"game saved successfully\n"RESET);
             saveGameFlag = 0;
         }
 
@@ -210,7 +211,16 @@ int * startGame(state * s, options * gameOptions){
                     }
                     printf("insert where you want to place your line (cell position x,y then the side u for up, d for down, l for left, r for right)\n");
                     action = makeMoveInput(gameOptions->gridSize);
-                    actionFlag = applyStateAction(action, s->turn, s);
+                    char chainFlag = checkChain(s, action);
+                    if (chainFlag == 1){
+                        if (s->numberOfRemainingCells == 0)
+                            actionFlag = 3;
+                        else 
+                            actionFlag = 2;
+                    }
+                    else if (chainFlag == 0){
+                        actionFlag = applyStateAction(action, s->turn, s);
+                    }
                     if (actionFlag == 0){
                         invalidActionFlag = 1;
                         free(action);
