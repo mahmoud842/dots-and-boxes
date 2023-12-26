@@ -47,7 +47,7 @@ int main(){
             char saveGameFlag = 0;
 
             while(!playerWon){
-                crokyDisplayState(s);
+                displayState(s);
 
                 if (elseFlag){
                     printf("else error\n");

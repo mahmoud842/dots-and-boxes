@@ -96,9 +96,8 @@ char * makeMoveInput(int gridSize){
         fgets(buffer, 257, stdin);
         int inputSize = strlen(buffer);   
 
-        if (inputSize == 1){
+        if (inputSize < 6){
             errorFlag = 1;
-            printf("nothing? ");
         }
 
         else if(inputSize > 6){
