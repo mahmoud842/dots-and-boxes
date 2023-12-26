@@ -139,7 +139,7 @@ void displayState(state *gameState) {
         printf(BLUE"P2 Turn\t\t"RESET);
     }
 
-    printf("Remaining Boxes : %d\n", gameState->numberOfRemainingCells); // we will change the name 
+    printf("Remaining Boxes : %d\n",gameState->gridSize * gameState->gridSize-gameState->numberOfRemainingCells); // we will change the name 
     
     int min = gameState->time / 60 , sec = gameState->time % 60;    // i don't think we will need hours unless the time still working after saveing
 
@@ -292,4 +292,55 @@ char displayAvailableFilesForState(char fileNames[][14], char * availableFiles){
     } while(!fileChoosen);
 
     return input1;
+}
+void displayTopTen(scores *topTenScores){   // it takes struct scores only as input sorted and print the top 10 or less if ther less than 10
+    
+    if (topTenScores->numberOfUsers <= 0) {
+        printf("No users yet\n");
+        return;
+    }
+
+  for (int i = 0; i < topTenScores->numberOfUsers - 1; i++) {
+        for (int j = 0; j < topTenScores->numberOfUsers - i - 1; j++) {
+            if (topTenScores->usersScores[j].score < topTenScores->usersScores[j + 1].score) {
+            
+                userScore temp = topTenScores->usersScores[j];
+                topTenScores->usersScores[j] = topTenScores->usersScores[j + 1];
+                topTenScores->usersScores[j + 1] = temp;
+
+            }
+        }
+    }
+
+    printf("Top 10 Users:\n");
+    int limit;
+
+    if (topTenScores->numberOfUsers < 10) {
+        limit = topTenScores->numberOfUsers;
+    } else {
+        limit = 10;
+    }
+
+    for (int i = 0; i < limit; i++) {
+        if (i == 0)
+        {
+           printf(YELLOW"%d- Name: %s  Score: %d\n"RESET, i + 1, topTenScores->usersScores[i].name, topTenScores->usersScores[i].score); // highest score will print with the color yellow feel free to remove it
+        }else{
+        
+        printf("%d- Name: %s  Score: %d\n", i + 1, topTenScores->usersScores[i].name, topTenScores->usersScores[i].score);
+        }
+    }
+
+}
+void croakyClose(state *s) {
+    for (int i = 0; i < s->gridSize; i++) {
+        for (int j = 0; j < s->gridSize; j++) {
+            if (s->grid[i][j].up + s->grid[i][j].down + s->grid[i][j].right + s->grid[i][j].left == 3) {
+                initializeNearByCell(s,i,j,'u') ;
+                initializeNearByCell(s,i,j,'d') ;
+                initializeNearByCell(s,i,j,'l') ;
+                initializeNearByCell(s,i,j,'r') ;
+            }
+        }
+    }
 }
