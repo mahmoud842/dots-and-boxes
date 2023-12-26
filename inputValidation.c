@@ -116,6 +116,7 @@ char * makeMoveInput(int gridSize){
                 outOfRange = 1;
             }
             if (!(side == 'u' || side == 'd' || side == 'r' || side == 'l')){
+                errorFlag = 1;
                 sideFlag = 1;
             }
 

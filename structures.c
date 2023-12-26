@@ -127,6 +127,19 @@ char applyStateAction(char * action, char playerTurn, state * s){
         s->grid[i][j].owner = playerTurn;
     }
 
+    if (s->turn == 1){
+        s->p1Moves++;
+        if (numberOfFilledBoxes){
+            s->p1Score += numberOfFilledBoxes;
+        }
+    }
+    else {
+        s->p2Moves++;
+        if (numberOfFilledBoxes){
+            s->p2Score += numberOfFilledBoxes;
+        }
+    }
+
     s->numberOfRemainingCells -= numberOfFilledBoxes;
     if (s->numberOfRemainingCells == 0){
         return 3;

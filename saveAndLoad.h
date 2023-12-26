@@ -14,8 +14,9 @@ void addUserScoreToFile(char * fileName, char * userName, int score);
 scores * loadScoresFromFile(char * fileName);
 scores * loadAndSortScores(char * fileName);
 char saveScoresToFile(char * fileName, scores * _scores);
-char * checkAvailableStateFiles(char ** _fileNames, char * _availableSaveGameFiles);
+char * checkAvailableStateFiles(char _fileNames[][14], char * _availableSaveGameFiles);
 char saveStateToFile(char * _fileName, state * _state);
 state * loadStateFromFile(char * _fileName);
+scores * addUserToScores(scores * s, char * userName, char score);
 
 #endif
