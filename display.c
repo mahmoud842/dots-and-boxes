@@ -145,7 +145,7 @@ void displayState(state *gameState) {
         printf(BLUE"P2 Turn\t\t"RESET);
     }
 
-    printf("Remaining Boxes : %d\n",gameState->gridSize * gameState->gridSize-gameState->numberOfRemainingCells); // we will change the name 
+    printf("Remaining Boxes : %d\n",gameState->numberOfRemainingCells); // we will change the name 
     
     int min = gameState->time / 60 , sec = gameState->time % 60;    // i don't think we will need hours unless the time still working after saveing
 
