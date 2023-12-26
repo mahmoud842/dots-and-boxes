@@ -122,6 +122,7 @@ scores * leaderBoard(char playerWon, int scoreOfWinner, int * index){
 // some lines to handle tie i didn't want to change in startGame so i made this function to do the logic then call startGame.
 void startGameMask(state * s, options * gameOptions){
     int * playerWonWithScore = startGame(s, gameOptions);
+    if (playerWonWithScore == NULL) return;
     if (playerWonWithScore[0] == 0){
         printf(YELLOW"Tie\n"RESET);
         scores * allScores = loadAndSortScores(leaderBoardFile);
@@ -184,16 +185,18 @@ int * startGame(state * s, options * gameOptions){
             redoFlag = 0;
         }
 
-        char inGameMenu = displayInGameMenu();
 
         // for checking if AI turn:
         if (s->turn == 2 && s->gameMode == 2){
             // AI will make an action
+            s->turn = (s->turn == 1) ? 2 : 1;
         }
         else if (s->turn == 2 && s->gameMode == 3){
             // AI will make an action
+            s->turn = (s->turn == 1) ? 2 : 1;
         }
         else {
+            char inGameMenu = displayInGameMenu();
 
             // palce a line
             if (inGameMenu == 1){
