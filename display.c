@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "structures.h"
 #include "inputValidation.h"
+#include "saveAndLoad.h"
 
 void newGameMenu(options *startGame);
 void gameModeMenu(options *startGame);
@@ -11,11 +12,11 @@ void theOwner(state *gameState , char row , char col);
 
 void displayMainMenu(options *startGame){
 
-    //system("cls");
-    printf("Start a new game : 1\n");
-    printf("Load game : 2\n");
-    printf("Display top 10 : 3\n");
-    printf("exit : 4\n");
+    system("cls");
+    printf("1) Start a new game\n");
+    printf("2) Load game\n");
+    printf("3) Display top 10\n");
+    printf("4) exit\n");
 
     int menuOptions = mainMenuInput(4); // the number represent which one is selected 
 
@@ -38,10 +39,10 @@ void displayMainMenu(options *startGame){
 }
 
 void newGameMenu(options *startGame) {
-    //system("cls");
+    system("cls");
     printf("Choose difficulty:\n");
-    printf("Beginner 2*2: 1\n");;
-    printf("Expert 5*5: 2\n");
+    printf("1) Beginner 2*2\n");;
+    printf("2) Expert 5*5\n");
     
     int difficulty = mainMenuInput(2);
 
@@ -57,10 +58,10 @@ void newGameMenu(options *startGame) {
 }
 
 void gameModeMenu(options *startGame){
-    //system("cls");
+    system("cls");
     printf("Choose game mode:\n");
-    printf("Human: 1\n");;
-    printf("AI: 2\n");
+    printf("1) Human\n");;
+    printf("2) AI\n");
 
     int mode = mainMenuInput(2);
 
@@ -78,8 +79,8 @@ void gameModeMenu(options *startGame){
 void AIDiff(options *startGame){
     system("cls");
     printf("Choose AI difficulty:\n");
-    printf("Easy: 1\n");
-    printf("Hard: 2\n");
+    printf("1) Easy\n");
+    printf("2) Hard\n");
 
     int aiDiff = mainMenuInput(2);
 
@@ -130,23 +131,10 @@ void initializeNearByCell(state *gridPosition, int row, int col , char s) { // g
     theOwner(gridPosition,row,col);
 }
 
-void displayState(state *gameState) {
-   
-   
-    if (gameState->turn == 1) {          // maybe it will be a mistake here cause it display the player who played last game
-        printf(RED"P1 Turn\t\t"RESET);  
-    } else {
-        printf(BLUE"P2 Turn\t\t"RESET);
-    }
-
-    printf("Remaining Boxes : %d\n",gameState->gridSize * gameState->gridSize-gameState->numberOfRemainingCells); // we will change the name 
-    
-    int min = gameState->time / 60 , sec = gameState->time % 60;    // i don't think we will need hours unless the time still working after saveing
-
-    printf("Time %d : %d\n\n",min , sec);                  
-
+void displayState(state *gameState) { 
+    system("cls");     
     for (int j = 1; j <= gameState->gridSize; j++) {        //number of col
-        printf("  %d ", j);
+        printf("        %d        ", j);
     }  
     printf("\n");
     for (int i = 0; i < gameState->gridSize; i++) {       
@@ -154,38 +142,37 @@ void displayState(state *gameState) {
            
             printf("+");
             if (gameState->grid[i][j].up == 1) {
-                printf(RED"---"RESET);
+                printf(RED"---------------"RESET);
             }
             else if (gameState->grid[i][j].up == 2){
-                printf(BLUE"---"RESET);
+                printf(BLUE"---------------"RESET);
             } 
             else {
-                printf("   ");
+                printf("               ");
             }
         }
         printf("+\n");
 
-        for (int j = 0; j < gameState->gridSize; j++) {  
-            if (gameState->grid[i][j].left == 1) {
-                printf(RED"|"RESET);                      // maybe modified to have a fixed color for each player   
-            }
-            else if (gameState->grid[i][j].left == 2){
-                printf(BLUE"|"RESET);
-            }
-            else {
-                printf(" ");
-            }
+        for (int z = 0; z < 5; z++){
+            for (int j = 0; j < gameState->gridSize; j++) {  
+                if (gameState->grid[i][j].left == 1) {
+                    printf(RED"|"RESET);
+                }
+                else if (gameState->grid[i][j].left == 2){
+                    printf(BLUE"|"RESET);
+                }
+                else {
+                    printf(" ");
+                }
 
-            if (gameState->grid[i][j].owner == 1) {
-                printf("\033[41m   \033[0m");
-            } else if (gameState->grid[i][j].owner == 2) {
-                printf("\033[44m   \033[0m");
-            } else { 
-                printf("   ");
+                if (gameState->grid[i][j].owner == 1) {
+                    printf("\033[41m               \033[0m");
+                } else if (gameState->grid[i][j].owner == 2) {
+                    printf("\033[44m               \033[0m");
+                } else { 
+                    printf("               ");
+                }
             }
-
-
-        }
             if (gameState->grid[i][gameState->gridSize - 1].right == 1)
             {
                 printf(RED"|"RESET);
@@ -195,26 +182,46 @@ void displayState(state *gameState) {
             else{
                 printf(" ");
             }
+            if (z == 2)
+                printf(" %d",i+1); //number of rows
+            printf("\n");
+        }
             
-            printf(" %d",i+1);        //number of rows
-        printf("\n");
     }
 
     for (int j = 0; j < gameState->gridSize; j++) {
         printf("+");
         if (gameState->grid[gameState->gridSize - 1][j].down == 1) {
-            printf(RED"---"RESET);
+            printf(RED"---------------"RESET);
         } else if (gameState->grid[gameState->gridSize - 1][j].down == 2) {
-            printf(BLUE"---"RESET);
+            printf(BLUE"---------------"RESET);
         }
         else {
-            printf("   ");
+            printf("               ");
         }
     }
     printf("+\n\n");
 
-    printf("P1 score : %d\n",gameState->p1Score);
-    printf("P2 score : %d\n",gameState->p2Score);
+    if (gameState->turn == 1) {
+        printf(RED"P1 Turn\t\t"RESET);  
+    } else {
+        printf(BLUE"P2 Turn\t\t"RESET);
+    }
+
+    printf("Remaining Boxes : %d\n", gameState->numberOfRemainingCells);
+
+    if (gameState->turn == 1){
+        printf(YELLOW"P1 score: %d, P1 moves: %d\n"RESET, gameState->p1Score, gameState->p1Moves);
+        printf("P2 score: %d, P2 moves: %d\n", gameState->p2Score, gameState->p2Moves);
+    }
+    else {
+        printf("P1 score: %d, P1 moves: %d\n",gameState->p1Score, gameState->p1Moves);
+        printf(YELLOW"P2 score: %d, P2 moves: %d\n"RESET,gameState->p2Score, gameState->p2Moves);
+    }
+
+    int min = gameState->time / 60 , sec = gameState->time % 60;    // i don't think we will need hours unless the time still working after saveing
+    printf("Time %d : %d\n",min , sec);  
+
 }
 
 void theOwner(state *gameState , char row , char col){ 
@@ -238,12 +245,6 @@ void theOwner(state *gameState , char row , char col){
 }
 
 char displayInGameMenu(){
-    // 1 for place a line
-    // 2 for undo
-    // 3 for redo
-    // 4 for save game
-    // 5 for main menu
-
     printf("1) place line\n");
     printf("2) place undo\n");
     printf("3) place redo\n");
@@ -253,9 +254,13 @@ char displayInGameMenu(){
     return mainMenuInput(5);
 }
 
-char displayAvailableFilesForState(char fileNames[][14], char * availableFiles){
+char displayAvailableFilesToLoadState(char fileNames[][14]){
+    system("cls");
+    char * availableFiles = (char *)calloc(5, sizeof(char));
+    checkAvailableStateFiles(fileNames, availableFiles);
+    printf("Files List:\n");
     for (int i = 0; i < 5; i++){
-        printf("%d %s ", i + 1, fileNames[i]);
+        printf("%d) %s ", i + 1, fileNames[i]);
         if (availableFiles[i]){
             printf(RED"occupied\n"RESET);
         }
@@ -263,6 +268,44 @@ char displayAvailableFilesForState(char fileNames[][14], char * availableFiles){
             printf(BLUE"empty\n"RESET);
         }
     }
+    printf("6) return to main menu\n");
+
+    char input = 0;
+    char emptyFlag = 0;
+    do {
+        if (emptyFlag){
+            printf("This file is empty choose another file: ");
+            emptyFlag = 0;
+        }
+        else {
+            printf("choose a file: ");
+        }
+        input = mainMenuInput(6);
+        if (input == 6){
+            return input;
+        }
+        if (!availableFiles[input - 1]){
+            emptyFlag = 1;
+        }
+
+    } while (emptyFlag);
+
+    return input;
+}
+
+char displayAvailableFilesToSaveState(char fileNames[][14], char * availableFiles){
+    system("cls");
+    printf("Files list:\n");
+    for (int i = 0; i < 5; i++){
+        printf("%d) %s ", i + 1, fileNames[i]);
+        if (availableFiles[i]){
+            printf(RED"occupied\n"RESET);
+        }
+        else {
+            printf(BLUE"empty\n"RESET);
+        }
+    }
+    printf("6) return to the game\n");
 
     char fileChoosen = 0;
     char anotherFileFlag = 0;
@@ -273,7 +316,10 @@ char displayAvailableFilesForState(char fileNames[][14], char * availableFiles){
             anotherFileFlag = 0;
         }
         printf("insert the number of the file you want to save to: ");
-        input1 = mainMenuInput(5);
+        input1 = mainMenuInput(6);
+        if (input1 == 6){
+            break;
+        }
         input1--;
 
         if (availableFiles[input1]){
@@ -294,10 +340,10 @@ char displayAvailableFilesForState(char fileNames[][14], char * availableFiles){
     return input1;
 }
 
-void displayTopTen(scores *topTenScores, int index){   // it takes struct scores only as input sorted and print the top 10 or less if ther less than 10
-    
+// it takes struct scores only as input sorted and print the top 10 or less if ther less than 10
+void displayTopTen(scores *topTenScores, int index){
     if (topTenScores->numberOfUsers <= 0) {
-        printf("No users yet\n");
+        printf(YELLOW"No users yet\n"RESET);
         return;
     }
 

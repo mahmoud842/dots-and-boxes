@@ -12,7 +12,8 @@ void displayMainMenu(options *startGame);
 void initializeNearByCell(state *gridPosition, int row, int col , char s);
 void displayState(state *gameState);
 char displayInGameMenu();
-char displayAvailableFilesForState(char fileNames[][14], char * availableFiles);
+char displayAvailableFilesToSaveState(char fileNames[][14], char * availableFiles);
+char displayAvailableFilesToLoadState(char fileNames[][14]);
 
 void displayTopTen(scores *topTenScores, int index);
 #endif
