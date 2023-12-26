@@ -298,3 +298,15 @@ void displayTopTen(scores *topTenScores){   // it takes struct scores only as in
     }
 
 }
+void croakyClose(state *s) {
+    for (int i = 0; i < s->gridSize; i++) {
+        for (int j = 0; j < s->gridSize; j++) {
+            if (s->grid[i][j].up + s->grid[i][j].down + s->grid[i][j].right + s->grid[i][j].left == 3) {
+                initializeNearByCell(s,i,j,'u') ;
+                initializeNearByCell(s,i,j,'d') ;
+                initializeNearByCell(s,i,j,'l') ;
+                initializeNearByCell(s,i,j,'r') ;
+            }
+        }
+    }
+}
