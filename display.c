@@ -3,12 +3,6 @@
 #include <stdlib.h>
 #include "structures.h"
 #include "inputValidation.h"
-#define BLUE "\x1b[34m"
-#define RESET "\x1b[0m"
-#define RED "\x1b[31m"
-#define YELLOW "\x1b[33m"
-
-
 
 void newGameMenu(options *startGame);
 void gameModeMenu(options *startGame);
@@ -17,7 +11,7 @@ void theOwner(state *gameState , char row , char col);
 
 void displayMainMenu(options *startGame){
 
-    system("cls");
+    //system("cls");
     printf("Start a new game : 1\n");
     printf("Load game : 2\n");
     printf("Display top 10 : 3\n");
@@ -44,7 +38,7 @@ void displayMainMenu(options *startGame){
 }
 
 void newGameMenu(options *startGame) {
-    system("cls");
+    //system("cls");
     printf("Choose difficulty:\n");
     printf("Beginner 2*2: 1\n");;
     printf("Expert 5*5: 2\n");
@@ -63,7 +57,7 @@ void newGameMenu(options *startGame) {
 }
 
 void gameModeMenu(options *startGame){
-    system("cls");
+    //system("cls");
     printf("Choose game mode:\n");
     printf("Human: 1\n");;
     printf("AI: 2\n");
@@ -139,7 +133,7 @@ void initializeNearByCell(state *gridPosition, int row, int col , char s) { // g
 void displayState(state *gameState) {
    
    
-    if (gameState->turn == 0) {          // maybe it will be a mistake here cause it display the player who played last game
+    if (gameState->turn == 1) {          // maybe it will be a mistake here cause it display the player who played last game
         printf(RED"P1 Turn\t\t"RESET);  
     } else {
         printf(BLUE"P2 Turn\t\t"RESET);
@@ -259,7 +253,48 @@ char displayInGameMenu(){
     return mainMenuInput(5);
 }
 
-void displayTopTen(scores *topTenScores){   // it takes struct scores only as input sorted and print the top 10 or less if ther less than 10
+char displayAvailableFilesForState(char fileNames[][14], char * availableFiles){
+    for (int i = 0; i < 5; i++){
+        printf("%d %s ", i + 1, fileNames[i]);
+        if (availableFiles[i]){
+            printf(RED"occupied\n"RESET);
+        }
+        else {
+            printf(BLUE"empty\n"RESET);
+        }
+    }
+
+    char fileChoosen = 0;
+    char anotherFileFlag = 0;
+    char input1;
+    do {
+        if (anotherFileFlag){
+            printf("choose another file\n");
+            anotherFileFlag = 0;
+        }
+        printf("insert the number of the file you want to save to: ");
+        input1 = mainMenuInput(5);
+        input1--;
+
+        if (availableFiles[input1]){
+            printf("are you sure you want to over right this file (1 for yes, 2 for no)");
+            char input2 = mainMenuInput(2);
+            if (input2 == 1){
+                fileChoosen = 1;
+            }
+            else {
+                anotherFileFlag = 1;
+            }
+        }
+        else {
+            fileChoosen = 1;
+        }
+    } while(!fileChoosen);
+
+    return input1;
+}
+
+void displayTopTen(scores *topTenScores, int index){   // it takes struct scores only as input sorted and print the top 10 or less if ther less than 10
     
     if (topTenScores->numberOfUsers <= 0) {
         printf("No users yet\n");
@@ -288,9 +323,10 @@ void displayTopTen(scores *topTenScores){   // it takes struct scores only as in
     }
 
     for (int i = 0; i < limit; i++) {
-        if (i == 0)
+        if (i == index)
         {
-           printf(YELLOW"%d- Name: %s  Score: %d\n"RESET, i + 1, topTenScores->usersScores[i].name, topTenScores->usersScores[i].score); // highest score will print with the color yellow feel free to remove it
+            // the color of the newest player will be yellow
+            printf(YELLOW"%d- Name: %s  Score: %d\n"RESET, i + 1, topTenScores->usersScores[i].name, topTenScores->usersScores[i].score);
         }else{
         
         printf("%d- Name: %s  Score: %d\n", i + 1, topTenScores->usersScores[i].name, topTenScores->usersScores[i].score);
@@ -298,7 +334,7 @@ void displayTopTen(scores *topTenScores){   // it takes struct scores only as in
     }
 
 }
-void croakyClose(state *s) {                     // when you applay it it close any cell that has only one left
+void croakyClose(state *s) {
     for (int i = 0; i < s->gridSize; i++) {
         for (int j = 0; j < s->gridSize; j++) {
             if (s->grid[i][j].up + s->grid[i][j].down + s->grid[i][j].right + s->grid[i][j].left == 3) {

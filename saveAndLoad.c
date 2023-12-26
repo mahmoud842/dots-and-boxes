@@ -4,6 +4,8 @@
 #include <stdlib.h>
 #include "structures.h"
 
+#define TOP_NUM 10
+
 
 // this function returns 1 if the file is corrupted or doesn't exist
 char checkScoresFileCorruption(char * fileName){
@@ -120,31 +122,11 @@ scores * loadScoresFromFile(char * fileName){
     
 }
 
-void swapUserScores(userScore * ptr1, userScore * ptr2){
-    userScore * tmp = (userScore *)malloc(sizeof(userScore));
-    tmp->name = ptr1->name;
-    tmp->score = ptr1->score;
-
-    ptr1->name = ptr2->name;
-    ptr1->score = ptr2->score;
-
-    ptr2->name = tmp->name;
-    ptr2->score = tmp->score;
-
-    free(tmp);
-}
-
 // this function load and sort the scores from the file and if the file doesn't exist or corrupted or empty returns NULL.
 scores * loadAndSortScores(char * fileName){
     scores * s = loadScoresFromFile(fileName);
     if (s == NULL) return NULL;
-    for (int i = 0; i < s->numberOfUsers - 1; i++){
-        for (int j = 0; j < s->numberOfUsers - i - 1; j++){
-            if (s->usersScores[j].score < s->usersScores[j + 1].score){
-                swapUserScores(&(s->usersScores[j]), &(s->usersScores[j + 1]));
-            }
-        }
-    }
+    sortScores(s);
     return s;
 }
 
@@ -162,7 +144,7 @@ char saveScoresToFile(char * fileName, scores * _scores){
 }
 
 // savegamei
-char * checkAvailableStateFiles(char ** _fileNames, char * _availableSaveGameFiles){
+char * checkAvailableStateFiles(char _fileNames[][14], char * _availableSaveGameFiles){
     FILE * file;
     int count = 0;
     for (int i = 0; i < NUM_SAVEGAME_FILES; i++){
@@ -305,4 +287,64 @@ state * loadStateFromFile(char * _fileName){
     }
     
     return NULL;
+}
+
+// copy left to right
+void copyStr(char * name1, char * name2){
+    for (int i = 0; i < MAX_CHAR_OF_NAME - 1; i++){
+        name2[i] = name1[i];
+    }
+    name2[MAX_CHAR_OF_NAME - 1] = '\0';
+}
+
+// should return 1 if the user in the leader board the the board is updated and 0 otherwise
+// but now the function doesn't have a max number of 10
+scores * addUserToScores(scores * s, char * userName, int score, int * index){
+    if (s == NULL){
+        s = constructScores(1);
+        copyStr(userName, s->usersScores[0].name);
+        s->usersScores[0].score = score;
+        *index = 0;
+        return s;
+    }
+
+    scores * newScores;
+    if (s->numberOfUsers >= TOP_NUM){
+        newScores = constructScores(TOP_NUM);
+    }
+
+    // is for sure less than TOP_NUM
+    else {
+        newScores = constructScores(s->numberOfUsers + 1);
+        newScores->usersScores[s->numberOfUsers].score = 0;
+    }
+
+    char userInserted = 0;
+    int i = 0; // points on new score
+    int p = 0; // points on old score 
+    for (; p < s->numberOfUsers && i < newScores->numberOfUsers; i++){
+        if (s->usersScores[p].score < score && !userInserted){
+            newScores->usersScores[i].score = score;
+            newScores->usersScores[i].name = userName;
+            userInserted = 1;
+            *index = i;
+        }
+        else {
+            copyStr(s->usersScores[p].name, newScores->usersScores[i].name);
+            newScores->usersScores[i].score = s->usersScores[p].score;
+            p++;
+        }
+    }
+
+    if (!userInserted && i < newScores->numberOfUsers){
+        int lastIndex = newScores->numberOfUsers - 1;
+        newScores->usersScores[lastIndex].score = score;
+        newScores->usersScores[lastIndex].name = userName;
+        userInserted = lastIndex;
+        *index = i;
+    }
+
+    freeScores(s);
+    return newScores;
+
 }

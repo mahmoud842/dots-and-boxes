@@ -116,6 +116,7 @@ char * makeMoveInput(int gridSize){
                 outOfRange = 1;
             }
             if (!(side == 'u' || side == 'd' || side == 'r' || side == 'l')){
+                errorFlag = 1;
                 sideFlag = 1;
             }
 
@@ -159,6 +160,7 @@ char * takeUserName(){
             errorFlag = 1;
         }
 
+        // maybe i should add + 1 here after MAX_CHAR_..
         else if(inputSize > MAX_CHAR_OF_NAME){
             overSize = 1;
             while(buffer[strlen(buffer) - 1] != '\n'){

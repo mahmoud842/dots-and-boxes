@@ -21,7 +21,7 @@ typedef struct state{
     int time; // number of sec passed and then we will calculate the minutes from it.
     cell ** grid; // grid actuall size in bytes = sizeof(cell) * height * width (for loading and writing to files)
 
-    char turn; // if 1 then player 1's turn, if 2 than the player 2's turn., 0 for AI
+    char turn; // if 1 then player 1's turn, if 2 than the player 2 or AI turn
 
     // scores are made in char bec they can't pass 255 each;
     char p1Score;
@@ -85,6 +85,9 @@ state * getRedo(undoRedo * u);
 // scores:
 void freeScores(scores * s);
 scores * constructScores();
+char userInScores(scores * s, char * userName, int score, int * index);
+void sortScores(scores * s);
+int putInPosition(scores * s, int index);
 
 // cell:
 cell * constructCell();
