@@ -11,7 +11,7 @@ void theOwner(state *gameState , char row , char col);
 
 void displayMainMenu(options *startGame){
 
-    system("cls");
+    //system("cls");
     printf("Start a new game : 1\n");
     printf("Load game : 2\n");
     printf("Display top 10 : 3\n");
@@ -38,7 +38,7 @@ void displayMainMenu(options *startGame){
 }
 
 void newGameMenu(options *startGame) {
-    system("cls");
+    //system("cls");
     printf("Choose difficulty:\n");
     printf("Beginner 2*2: 1\n");;
     printf("Expert 5*5: 2\n");
@@ -57,7 +57,7 @@ void newGameMenu(options *startGame) {
 }
 
 void gameModeMenu(options *startGame){
-    system("cls");
+    //system("cls");
     printf("Choose game mode:\n");
     printf("Human: 1\n");;
     printf("AI: 2\n");
@@ -265,12 +265,12 @@ char displayAvailableFilesForState(char fileNames[][14], char * availableFiles){
     }
 
     char fileChoosen = 0;
-    char anotherFlag = 0;
+    char anotherFileFlag = 0;
     char input1;
     do {
-        if (anotherFlag){
+        if (anotherFileFlag){
             printf("choose another file\n");
-            anotherFlag = 0;
+            anotherFileFlag = 0;
         }
         printf("insert the number of the file you want to save to: ");
         input1 = mainMenuInput(5);
@@ -283,7 +283,7 @@ char displayAvailableFilesForState(char fileNames[][14], char * availableFiles){
                 fileChoosen = 1;
             }
             else {
-                anotherFlag = 1;
+                anotherFileFlag = 1;
             }
         }
         else {
@@ -293,7 +293,8 @@ char displayAvailableFilesForState(char fileNames[][14], char * availableFiles){
 
     return input1;
 }
-void displayTopTen(scores *topTenScores){   // it takes struct scores only as input sorted and print the top 10 or less if ther less than 10
+
+void displayTopTen(scores *topTenScores, int index){   // it takes struct scores only as input sorted and print the top 10 or less if ther less than 10
     
     if (topTenScores->numberOfUsers <= 0) {
         printf("No users yet\n");
@@ -322,9 +323,10 @@ void displayTopTen(scores *topTenScores){   // it takes struct scores only as in
     }
 
     for (int i = 0; i < limit; i++) {
-        if (i == 0)
+        if (i == index)
         {
-           printf(YELLOW"%d- Name: %s  Score: %d\n"RESET, i + 1, topTenScores->usersScores[i].name, topTenScores->usersScores[i].score); // highest score will print with the color yellow feel free to remove it
+            // the color of the newest player will be yellow
+            printf(YELLOW"%d- Name: %s  Score: %d\n"RESET, i + 1, topTenScores->usersScores[i].name, topTenScores->usersScores[i].score);
         }else{
         
         printf("%d- Name: %s  Score: %d\n", i + 1, topTenScores->usersScores[i].name, topTenScores->usersScores[i].score);
@@ -332,6 +334,7 @@ void displayTopTen(scores *topTenScores){   // it takes struct scores only as in
     }
 
 }
+
 void croakyClose(state *s) {
     for (int i = 0; i < s->gridSize; i++) {
         for (int j = 0; j < s->gridSize; j++) {

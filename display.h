@@ -14,5 +14,5 @@ void displayState(state *gameState);
 char displayInGameMenu();
 char displayAvailableFilesForState(char fileNames[][14], char * availableFiles);
 
-void displayTopTen(scores *topTenScores);
+void displayTopTen(scores *topTenScores, int index);
 #endif

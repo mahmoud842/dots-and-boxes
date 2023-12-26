@@ -270,3 +270,69 @@ state * getRedo(undoRedo * u){
     u->index++;
     return copyState(s);
 }
+
+char compareStr(char * name1, char * name2){
+    for (int i = 0; i < MAX_CHAR_OF_NAME; i++){
+        if (name1[i] != name2[i])
+            return 0;
+    }
+    return 1;
+}
+
+char userInScores(scores * s, char * userName, int score, int * index){
+    if (s == NULL){
+        return 0;
+    }
+
+    for (int i = 0; i < s->numberOfUsers; i++){
+        if (compareStr(s->usersScores[i].name, userName)){
+            if (s->usersScores[i].score < score){
+                s->usersScores[i].score = score;
+            }
+            free(userName);
+            printf("old index = %d\n", i);
+            *index = putInPosition(s, i);
+            printf("new index = %d\n", *index);
+            return 1;
+        }
+    }
+    return 0;
+}
+
+void swapUserScores(userScore * ptr1, userScore * ptr2){
+    userScore * tmp = (userScore *)malloc(sizeof(userScore));
+    tmp->name = ptr1->name;
+    tmp->score = ptr1->score;
+
+    ptr1->name = ptr2->name;
+    ptr1->score = ptr2->score;
+
+    ptr2->name = tmp->name;
+    ptr2->score = tmp->score;
+
+    free(tmp);
+}
+
+// this function load and sort the scores from the file and if the file doesn't exist or corrupted or empty returns NULL.
+void sortScores(scores * s){
+    for (int i = 0; i < s->numberOfUsers - 1; i++){
+        for (int j = 0; j < s->numberOfUsers - i - 1; j++){
+            if (s->usersScores[j].score < s->usersScores[j + 1].score){
+                swapUserScores(&(s->usersScores[j]), &(s->usersScores[j + 1]));
+            }
+        }
+    }
+}
+
+int putInPosition(scores * s, int index){
+    for (int i = index; i > 0; i--){
+        if (s->usersScores[i].score > s->usersScores[i - 1].score){
+            swapUserScores(&(s->usersScores[i]), &(s->usersScores[i - 1]));
+        }
+        else {
+            printf("index inside putIn = %d\n", i);
+            return i;
+        }
+    }
+    return 0;
+}
