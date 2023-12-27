@@ -203,8 +203,25 @@ int * startGame(state * s, options * gameOptions){
 
         // Easy AI turn
         if (s->turn == 2 && s->gameMode == 2){
-            // AI will make an action
-            s->turn = (s->turn == 1) ? 2 : 1;
+      
+            char * action = beginnerAi(s);
+            int actionFlag = applyStateAction(action, s->turn, s);
+            if (actionFlag == 1){
+                s->turn = (s->turn == 1) ? 2 : 1;
+            }
+            else if(actionFlag == 3){
+                displayState(s);
+                if (s->p1Score > s->p2Score){
+                    playerWon = 1;
+                }
+                else if (s->p1Score < s->p2Score){
+                    playerWon = 2;
+                }
+                else {
+                    playerWon = 3;
+                }
+            }
+
         }
         // hard AI turn
         else if (s->turn == 2 && s->gameMode == 3){
