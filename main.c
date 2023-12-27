@@ -5,13 +5,16 @@
 #include "inputValidation.h"
 #include "display.h"
 #include "saveAndLoad.h"
+#include "ai.h"
 
 // compile command:
-// gcc main.c structures.c inputValidation.c display.c saveAndLoad.c -o dotsAndLines
+// gcc main.c structures.c inputValidation.c display.c saveAndLoad.c ai.c -o dotsAndLines
 // run: ./dotsAndLines
 
 int * startGame(state * s, options * gameOptions);
 scores * leaderBoard(char playerWon, int scoreOfWinner, int * index);
+void displayWonAndLeaderBoard(int * playerWonWithScore, options * gameOptions);
+void startGameMask(state * s, options * gameOptions);
 
 // need to place them in another place!
 char leaderBoardFile[] = "highScores.bin";
@@ -24,37 +27,42 @@ int main(){
         intializeOptionsWith0(gameOptions);
         displayMainMenu(gameOptions);
         if (gameOptions->start){
-            int * playerWonWithScore = startGame(NULL, gameOptions);
-            if (playerWonWithScore != NULL){
-                if (playerWonWithScore[0] == 1){
-                    printf(RED"player %d\x1b[0m win\n", playerWonWithScore[0]);
-                }
-                else {
-                    printf(BLUE"player %d\x1b[0m win\n", playerWonWithScore[0]);
-                }
-                
-
-                // handle the leader board part
-                if (playerWonWithScore[0] == 1 || (playerWonWithScore[0] == 2 && gameOptions->gameMode == 1)){
-                    int index = -1;
-                    scores * allScores = leaderBoard(playerWonWithScore[0], playerWonWithScore[1], &index);
-                    displayTopTen(allScores, index);
-                    saveScoresToFile(leaderBoardFile, allScores);
-
-                }
-
-                printf("enter 1 to got to main menu\n");
-                char t = mainMenuInput(1);
-            }
-
-
-
+            startGameMask(NULL, gameOptions);
         }
         else if (gameOptions->loadGame){
+            state * s = NULL;
+            char fileIsBad = 0;
+            char input = 0;
+            do {
+                if (fileIsBad){
+                    printf("This file is corrupted please choose another file: \n");
+                }
+                input = displayAvailableFilesToLoadState(saveGameFilesNames);
+                if (input == 6){
+                    break;
+                }
+                s = loadStateFromFile(saveGameFilesNames[input - 1]);
+                if (s == NULL){
+                    fileIsBad = 1;
+                }
+            } while (fileIsBad);
+            if (input != 6){
+                gameOptions->gameMode = s->gameMode;
+                gameOptions->gridSize = s->gridSize;
+                startGameMask(s, gameOptions);
+            }
 
         }
         else if(gameOptions->displayTopTen){
-
+            scores * allScores = loadAndSortScores(leaderBoardFile);
+            if (allScores == NULL){
+                printf(YELLOW"The leader Board file is not found or corrupted or empty\n"RESET);
+            }
+            else {
+                displayTopTen(allScores, -1);
+            }
+            printf("enter 1 to return to main menu\n");
+            char t = mainMenuInput(1);
         }
         else if(gameOptions->exit){
             printf("Thank You for playing the game\n");
@@ -70,15 +78,31 @@ int main(){
     return 0;
 }
 
+void displayWonAndLeaderBoard(int * playerWonWithScore, options * gameOptions){
+    if (playerWonWithScore != NULL){
+        if (playerWonWithScore[0] == 1){
+            printf(RED"player %d\x1b[0m win\n", playerWonWithScore[0]);
+        }
+        else {
+            printf(BLUE"player %d\x1b[0m win\n", playerWonWithScore[0]);
+        }
+        
+        // handle the leader board part
+        if (playerWonWithScore[0] == 1 || (playerWonWithScore[0] == 2 && gameOptions->gameMode == 1)){
+            int index = -1;
+            scores * allScores = leaderBoard(playerWonWithScore[0], playerWonWithScore[1], &index);
+            system("cls");
+            displayTopTen(allScores, index);
+            saveScoresToFile(leaderBoardFile, allScores);
+
+        }
+        printf("enter 1 to got to main menu\n");
+        char t = mainMenuInput(1);
+    }
+}
+
 scores * leaderBoard(char playerWon, int scoreOfWinner, int * index){
     scores * allScores = loadAndSortScores(leaderBoardFile);
-
-    // for test will be deleted before submit
-    // if (allScores != NULL){
-    //     printf("---------\n");
-    //     displayTopTen(allScores, -1);
-    //     printf("--------\n");
-    // }
 
     if (allScores == NULL){
         printf("The leader Board file is not found or corrupted\n");
@@ -87,11 +111,6 @@ scores * leaderBoard(char playerWon, int scoreOfWinner, int * index){
 
     printf("player %d Enter your name: ", playerWon);
     char * userName = takeUserName();
-    // printf("inputed name: %s, length = %d\n", userName, strlen(userName));
-
-    // for test:
-    // printf("enter score: ");
-    // scanf("%d", &scoreOfWinner);
 
     if (!userInScores(allScores, userName, scoreOfWinner, index)){
         allScores = addUserToScores(allScores, userName, scoreOfWinner, index);
@@ -99,6 +118,27 @@ scores * leaderBoard(char playerWon, int scoreOfWinner, int * index){
 
     free(userName);
     return allScores;
+}
+
+// some lines to handle tie i didn't want to change in startGame so i made this function to do the logic then call startGame.
+void startGameMask(state * s, options * gameOptions){
+    int * playerWonWithScore = startGame(s, gameOptions);
+    if (playerWonWithScore == NULL) return;
+    if (playerWonWithScore[0] == 0){
+        printf(YELLOW"Tie\n"RESET);
+        scores * allScores = loadAndSortScores(leaderBoardFile);
+        if (allScores == NULL){
+            printf("The leader Board file is not found or corrupted or empty\n");
+        }
+        else {
+            displayTopTen(allScores, -1);
+        }
+        printf("enter 1 to got to main menu\n");
+        char t = mainMenuInput(1);
+    }
+    else if (playerWonWithScore != NULL){
+        displayWonAndLeaderBoard(playerWonWithScore, gameOptions);
+    }
 }
 
 int * startGame(state * s, options * gameOptions){
@@ -132,7 +172,7 @@ int * startGame(state * s, options * gameOptions){
         }
 
         if (saveGameFlag){
-            printf(YELLOW"game saved uccessfully\n"RESET);
+            printf(YELLOW"game saved successfully\n"RESET);
             saveGameFlag = 0;
         }
 
@@ -146,16 +186,18 @@ int * startGame(state * s, options * gameOptions){
             redoFlag = 0;
         }
 
-        char inGameMenu = displayInGameMenu();
 
         // for checking if AI turn:
-        if (s->turn == 2 && gameOptions->gameMode == 2){
+        if (s->turn == 2 && s->gameMode == 2){
             // AI will make an action
+            s->turn = (s->turn == 1) ? 2 : 1;
         }
-        else if (s->turn == 2 && gameOptions->gameMode == 3){
+        else if (s->turn == 2 && s->gameMode == 3){
             // AI will make an action
+            s->turn = (s->turn == 1) ? 2 : 1;
         }
         else {
+            char inGameMenu = displayInGameMenu();
 
             // palce a line
             if (inGameMenu == 1){
@@ -169,7 +211,16 @@ int * startGame(state * s, options * gameOptions){
                     }
                     printf("insert where you want to place your line (cell position x,y then the side u for up, d for down, l for left, r for right)\n");
                     action = makeMoveInput(gameOptions->gridSize);
-                    actionFlag = applyStateAction(action, s->turn, s);
+                    char chainFlag = checkChain(s, action);
+                    if (chainFlag == 1){
+                        if (s->numberOfRemainingCells == 0)
+                            actionFlag = 3;
+                        else 
+                            actionFlag = 2;
+                    }
+                    else if (chainFlag == 0){
+                        actionFlag = applyStateAction(action, s->turn, s);
+                    }
                     if (actionFlag == 0){
                         invalidActionFlag = 1;
                         free(action);
@@ -183,6 +234,7 @@ int * startGame(state * s, options * gameOptions){
                     pushStateToRedoUndo(uR, copyState(s));
                 }
                 else if(actionFlag == 3){
+                    displayState(s);
                     if (s->p1Score > s->p2Score){
                         playerWon = 1;
                     }
@@ -190,9 +242,7 @@ int * startGame(state * s, options * gameOptions){
                         playerWon = 2;
                     }
                     else {
-                        // tie
-                        playerWon = 1;
-                        // didn't handle it yet
+                        playerWon = 3;
                     }
                 }
             }
@@ -225,9 +275,11 @@ int * startGame(state * s, options * gameOptions){
             else if (inGameMenu == 4){
                 char * availableSaveGameFiles = (char *)calloc(5, sizeof(char));
                 checkAvailableStateFiles(saveGameFilesNames, availableSaveGameFiles);
-                char fileIndex = displayAvailableFilesForState(saveGameFilesNames, availableSaveGameFiles);
-                saveStateToFile(saveGameFilesNames[fileIndex], s);
-                saveGameFlag = 1;
+                char fileIndex = displayAvailableFilesToSaveState(saveGameFilesNames, availableSaveGameFiles);
+                if (fileIndex != 6){
+                    saveStateToFile(saveGameFilesNames[fileIndex], s);
+                    saveGameFlag = 1;
+                }
             }
 
             // go to main menu
@@ -248,6 +300,11 @@ int * startGame(state * s, options * gameOptions){
         returnValue = (int *)malloc(2 * sizeof(int));
         returnValue[0] = playerWon;
         returnValue[1] = s->p2Score;
+    }
+    else if (playerWon == 3){
+        returnValue = (int *)malloc(2 * sizeof(int));
+        returnValue[0] = 0;
+        returnValue[1] = -1;
     }
 
     freeUndoRedo(uR);
