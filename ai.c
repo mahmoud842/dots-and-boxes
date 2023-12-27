@@ -1,7 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "ai.h"
+#include "ai.h"
 #include "structures.h"
+#include<time.h>
 
 // intialized with zeros using calloc
 char ** constructVisited(int size){
@@ -155,6 +157,226 @@ void dfs(state * s, char ** visited, int i, int j, int cameFrom, int directions[
         }
     }
 }
+// Function to shuffle an array of integers (Fisher-Yates shuffle)
+void shuffleArray(int arr[], int n) {
+    for (int i = n - 1; i > 0; i--) {
+        int j = rand() % (i + 1);
+
+        // Swap arr[i] and arr[j]
+        int temp = arr[i];
+        arr[i] = arr[j];
+        arr[j] = temp;
+    }
+}
+
+
+
+int helpAi(state *s ,int row , int col){
+    
+    char place[] = {'u', 'l', 'd', 'r'};
+    int charIndices[4];
+    for(int i = 0; i < 4; i++){
+      charIndices[i] = i ;
+    }
+
+    shuffleArray(charIndices, 4);
+
+    for (int i = 0; i < 4; i++) {
+        char key = place[charIndices[i]];
+        char move[] = { row, col, key}; 
+
+        int x;
+        switch (key) {
+            case 'u':
+                if (row == 0)
+                {   
+                    x = applyStateAction( move , s->turn, s);
+                    if(!x){
+                        break;
+                    } 
+                    return x;
+                }else{
+                    
+                    if (s->grid[row - 1][col].up + s->grid[row - 1][col].down + s->grid[row - 1][col].right + s->grid[row - 1][col].left == 2)
+                    {
+                        break;
+                    }else{
+                        x = applyStateAction( move , s->turn, s);
+                        if(!x){
+                            break;
+                        } 
+                        return x;
+                    }
+                    
+                }
+            case 'd':
+                if (row == s->gridSize - 1)
+                {
+                   x = applyStateAction( move , s->turn, s);
+                    if(!x){
+                        break;
+                    } 
+                    return x;
+                }else{
+                    
+                    if (s->grid[row + 1][col].up + s->grid[row + 1][col].down + s->grid[row + 1][col].right + s->grid[row + 1][col].left == 2)
+                    {
+                        break;
+                    }else{
+                        x = applyStateAction( move , s->turn, s);
+                        if(!x){
+                            break;
+                        } 
+                        return x;
+                    }
+                    
+                }
+                
+            case 'r':
+                if (col == s->gridSize - 1)
+                {
+                    x = applyStateAction( move , s->turn, s);
+                    if(!x){
+                        break;
+                    } 
+                    return x;
+                }else{
+                    
+                    if (s->grid[row][col + 1].up + s->grid[row][col + 1].down + s->grid[row][col + 1].right + s->grid[row][col + 1].left == 2)
+                    {
+                        break;
+                    }else{
+                        x = applyStateAction( move , s->turn, s);
+                        if(!x){
+                            break;
+                        } 
+                        return x;
+                    }
+                    
+                }
+                
+            case 'l':
+                if (col == 0)
+                {
+                    x = applyStateAction( move , s->turn, s);
+                    if(!x){
+                        break;
+                    } 
+                    return x;
+                }else{
+                    
+                    if (s->grid[row][col - 1].up + s->grid[row][col - 1].down + s->grid[row][col - 1].right + s->grid[row][col - 1].left == 2)
+                    {
+                        break;
+                    }else{
+                        x = applyStateAction( move , s->turn, s);
+                        if(!x){
+                            break;
+                        } 
+                        return x;
+                    }
+                    
+                } 
+                
+        }
+            
+        
+
+    }
+
+    return 0;
+
+}
+
+char * beginnerAi(state *s) {
+    
+    int rowIndices[s->gridSize];
+    int colIndices[s->gridSize];
+
+
+    srand((unsigned int)time(NULL));
+
+    // Initialize row and column indices
+    for (int i = 0; i < s->gridSize; i++) {
+        rowIndices[i] = i;
+    }
+
+    for (int j = 0; j < s->gridSize; j++) {
+        colIndices[j] = j;
+    }
+
+
+    // Shuffle row and column indices
+    shuffleArray(rowIndices, s->gridSize);
+    shuffleArray(colIndices, s->gridSize);
+
+    for (int i = 0; i < s->gridSize; i++) { 
+        for (int j = 0; j < s->gridSize; j++) {
+            int row = rowIndices[i];
+            int col = rowIndices[j];
+
+            if (countCellSides(s->grid[row][col]) == 3) {
+                
+                return generateActionOfAI(s,row , col,0);
+            }
+            
+            
+        }
+    }
+
+
+    for (int i = 0; i < s->gridSize; i++)
+    {
+        for (int j = 0; j < s->gridSize; j++) {
+            int row = rowIndices[i];
+            int col = rowIndices[j];
+
+            if (countCellSides(s->grid[row][col]) == 1) {
+
+                    state *newState = copyState(s);
+                    if (helpAi(newState,row,col)){
+                        freeState(newState);
+                        return generateActionOfAI(s,row ,col , 0);
+                    } 
+                     freeState(newState);
+            }  
+        }
+    }
+
+    for (int i = 0; i < s->gridSize; i++)
+    {
+        for (int j = 0; j < s->gridSize; j++) {
+            int row = rowIndices[i];
+            int col = rowIndices[j];
+
+            if (countCellSides(s->grid[row][col]) == 0) {
+                
+                    state *newState = copyState(s);
+                    if (helpAi(newState,row,col)){
+                        freeState(newState);
+                        return generateActionOfAI(s,row ,col , 0);
+                    } 
+                     freeState(newState);
+                    
+            }  
+        }
+    }
+
+    for (int i = 0; i < s->gridSize; i++)  ////////////
+    {
+        for (int j = 0; j < s->gridSize; j++) {
+
+            int row = rowIndices[i];
+            int col = rowIndices[j];
+            if (countCellSides(s->grid[row][col]) == 2) {
+                
+                return generateActionOfAI(s,row , col,0);
+            }
+        }
+    }
+
+        return NULL; //end of the game
+}
 
 int ** constructCellsScores(int size){
     int ** cellsScores = (int **)malloc(size * sizeof(int *));
@@ -246,6 +468,10 @@ char * generateActionOfAI(state * s, int i, int j, int score){
             leastScore = sideScores[i];
             leastIndex = i;
         }
+    }
+
+    if(leastScore == 100){
+        return NULL;
     }
 
     if (leastIndex == 0){
