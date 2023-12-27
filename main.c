@@ -84,7 +84,12 @@ void displayWonAndLeaderBoard(int * playerWonWithScore, options * gameOptions){
             printf(RED"player %d\x1b[0m win\n", playerWonWithScore[0]);
         }
         else {
-            printf(BLUE"player %d\x1b[0m win\n", playerWonWithScore[0]);
+            if (gameOptions->gameMode == 2){
+                printf(BLUE"AI\x1b[0m win\n");
+            }
+            else {
+                printf(BLUE"player %d\x1b[0m win\n", playerWonWithScore[0]);
+            }
         }
         
         // handle the leader board part
@@ -94,7 +99,16 @@ void displayWonAndLeaderBoard(int * playerWonWithScore, options * gameOptions){
             system("cls");
             displayTopTen(allScores, index);
             saveScoresToFile(leaderBoardFile, allScores);
-
+        }
+        else {
+            scores * allScores = loadAndSortScores(leaderBoardFile);
+            if (allScores == NULL){
+                printf("The leader Board file is not found or corrupted\n");
+                printf(YELLOW"a new file will be made\n"RESET);
+            }
+            else {
+                displayTopTen(allScores, -1);
+            }
         }
         printf("enter 1 to got to main menu\n");
         char t = mainMenuInput(1);
@@ -187,14 +201,30 @@ int * startGame(state * s, options * gameOptions){
         }
 
 
-        // for checking if AI turn:
+        // Easy AI turn
         if (s->turn == 2 && s->gameMode == 2){
             // AI will make an action
             s->turn = (s->turn == 1) ? 2 : 1;
         }
+        // hard AI turn
         else if (s->turn == 2 && s->gameMode == 3){
-            // AI will make an action
-            s->turn = (s->turn == 1) ? 2 : 1;
+            char * action = hardAIAction(s);
+            int actionFlag = applyStateAction(action, s->turn, s);
+            if (actionFlag == 1){
+                s->turn = (s->turn == 1) ? 2 : 1;
+            }
+            else if(actionFlag == 3){
+                displayState(s);
+                if (s->p1Score > s->p2Score){
+                    playerWon = 1;
+                }
+                else if (s->p1Score < s->p2Score){
+                    playerWon = 2;
+                }
+                else {
+                    playerWon = 3;
+                }
+            }
         }
         else {
             char inGameMenu = displayInGameMenu();
@@ -227,10 +257,11 @@ int * startGame(state * s, options * gameOptions){
                     }
                 } while(invalidActionFlag);
                 
-
-                // no condition if the actionFlag = 2 because if it is = 2 then I don't want to change player turn.
                 if (actionFlag == 1){
                     s->turn = (s->turn == 1) ? 2 : 1;
+                    pushStateToRedoUndo(uR, copyState(s));
+                }
+                else if (actionFlag == 2){
                     pushStateToRedoUndo(uR, copyState(s));
                 }
                 else if(actionFlag == 3){
