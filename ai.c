@@ -273,6 +273,9 @@ char * generateActionOfAI(state * s, int i, int j, int score){
 // 3- a box with 0 sides will be given 3
 // 4- a box with 1 side will be given 2
 // 5- a box with 2 sides will be given 1
+// after choosing the cell with the highest scores. we calculate a score for each side in this cell
+// and then the cell with the lowest score is choosen
+// the score of a side is determined on the number of sides are in the neighbour cell
 char * hardAIAction(state * s){
     char ** visited = constructVisited(s->gridSize);
     int ** cellsScores = constructCellsScores(s->gridSize);
