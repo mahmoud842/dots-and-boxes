@@ -84,7 +84,12 @@ void displayWonAndLeaderBoard(int * playerWonWithScore, options * gameOptions){
             printf(RED"player %d\x1b[0m win\n", playerWonWithScore[0]);
         }
         else {
-            printf(BLUE"player %d\x1b[0m win\n", playerWonWithScore[0]);
+            if (gameOptions->gameMode == 2){
+                printf(BLUE"AI\x1b[0m win\n");
+            }
+            else {
+                printf(BLUE"player %d\x1b[0m win\n", playerWonWithScore[0]);
+            }
         }
         
         // handle the leader board part
@@ -94,7 +99,16 @@ void displayWonAndLeaderBoard(int * playerWonWithScore, options * gameOptions){
             system("cls");
             displayTopTen(allScores, index);
             saveScoresToFile(leaderBoardFile, allScores);
-
+        }
+        else {
+            scores * allScores = loadAndSortScores(leaderBoardFile);
+            if (allScores == NULL){
+                printf("The leader Board file is not found or corrupted\n");
+                printf(YELLOW"a new file will be made\n"RESET);
+            }
+            else {
+                displayTopTen(allScores, -1);
+            }
         }
         printf("enter 1 to got to main menu\n");
         char t = mainMenuInput(1);
@@ -187,11 +201,12 @@ int * startGame(state * s, options * gameOptions){
         }
 
 
-        // for checking if AI turn:
+        // Easy AI turn
         if (s->turn == 2 && s->gameMode == 2){
             // AI will make an action
             s->turn = (s->turn == 1) ? 2 : 1;
         }
+        // hard AI turn
         else if (s->turn == 2 && s->gameMode == 3){
             char * action = hardAIAction(s);
             int actionFlag = applyStateAction(action, s->turn, s);
