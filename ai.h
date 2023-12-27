@@ -1,4 +1,2 @@
-#ifndef ai
-#define ai
-
-#endif
+#include <stdio.h>
+#include <stdlib.h>
