@@ -21,19 +21,19 @@ void freeVisited(char ** visited, int size){
 char fillCell(state * s, int i, int j){
     char count = 0;
     if (!s->grid[i][j].up){
-        s->grid[i][j].up = 1;
+        s->grid[i][j].up = s->turn;
         count++;
     }
     if (!s->grid[i][j].down){
-        s->grid[i][j].down = 1;
+        s->grid[i][j].down = s->turn;
         count++;
     }
     if (!s->grid[i][j].right){
-        s->grid[i][j].right = 1;
+        s->grid[i][j].right = s->turn;
         count++;
     }
     if (!s->grid[i][j].left){
-        s->grid[i][j].left = 1;
+        s->grid[i][j].left = s->turn;
         count++;
     }
     s->grid[i][j].owner = s->turn;

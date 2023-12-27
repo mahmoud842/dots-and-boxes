@@ -227,10 +227,11 @@ int * startGame(state * s, options * gameOptions){
                     }
                 } while(invalidActionFlag);
                 
-
-                // no condition if the actionFlag = 2 because if it is = 2 then I don't want to change player turn.
                 if (actionFlag == 1){
                     s->turn = (s->turn == 1) ? 2 : 1;
+                    pushStateToRedoUndo(uR, copyState(s));
+                }
+                else if (actionFlag == 2){
                     pushStateToRedoUndo(uR, copyState(s));
                 }
                 else if(actionFlag == 3){
