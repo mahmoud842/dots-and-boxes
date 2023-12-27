@@ -380,7 +380,6 @@ void displayTopTen(scores *topTenScores, int index){
     }
 
 }
-
 void croakyClose(state *s) {
     for (int i = 0; i < s->gridSize; i++) {
         for (int j = 0; j < s->gridSize; j++) {
@@ -389,6 +388,7 @@ void croakyClose(state *s) {
                 initializeNearByCell(s,i,j,'d') ;
                 initializeNearByCell(s,i,j,'l') ;
                 initializeNearByCell(s,i,j,'r') ;
+                return;
             }
         }
     }
