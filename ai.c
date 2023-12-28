@@ -157,7 +157,6 @@ void dfs(state * s, char ** visited, int i, int j, int cameFrom, int directions[
         }
     }
 }
-// Function to shuffle an array of integers (Fisher-Yates shuffle)
 void shuffleArray(int arr[], int n) {
     for (int i = n - 1; i > 0; i--) {
         int j = rand() % (i + 1);
@@ -170,8 +169,7 @@ void shuffleArray(int arr[], int n) {
 }
 
 
-
-int helpAi(state *s ,int row , int col){
+char helpAi(state *s ,int row , int col){
     
     char place[] = {'u', 'l', 'd', 'r'};
     int charIndices[4];
@@ -183,51 +181,50 @@ int helpAi(state *s ,int row , int col){
 
     for (int i = 0; i < 4; i++) {
         char key = place[charIndices[i]];
-        char move[] = { row, col, key}; 
 
-        int x;
         switch (key) {
             case 'u':
                 if (row == 0)
                 {   
-                    x = applyStateAction( move , s->turn, s);
-                    if(!x){
-                        break;
-                    } 
-                    return x;
+                    if (!s->grid[row][col].up)
+                    {
+                       return key;
+                    }
+                    
+                    break;
                 }else{
                     
-                    if (s->grid[row - 1][col].up + s->grid[row - 1][col].down + s->grid[row - 1][col].right + s->grid[row - 1][col].left == 2)
+                    if (countCellSides(s->grid[row - 1][col]) == 2)
                     {
                         break;
                     }else{
-                        x = applyStateAction( move , s->turn, s);
-                        if(!x){
-                            break;
-                        } 
-                        return x;
+                        if (!s->grid[row][col].up)
+                        {
+                         return key;
+                        }
+                        break;  
                     }
                     
                 }
             case 'd':
                 if (row == s->gridSize - 1)
-                {
-                   x = applyStateAction( move , s->turn, s);
-                    if(!x){
+                {   
+                    if (!s->grid[row][col].down)
+                    {
+                       return key;
+                    }
                         break;
-                    } 
-                    return x;
                 }else{
                     
-                    if (s->grid[row + 1][col].up + s->grid[row + 1][col].down + s->grid[row + 1][col].right + s->grid[row + 1][col].left == 2)
+                    if (countCellSides(s->grid[row + 1][col]) == 2)
                     {
                         break;
                     }else{
-                        x = applyStateAction( move , s->turn, s);
-                        if(!x){
-                            break;
-                        } 
-                        return x;
+                        if (!s->grid[row][col].down)
+                        {
+                        return key;
+                        }
+                        break;
                     }
                     
                 }
@@ -235,22 +232,22 @@ int helpAi(state *s ,int row , int col){
             case 'r':
                 if (col == s->gridSize - 1)
                 {
-                    x = applyStateAction( move , s->turn, s);
-                    if(!x){
+                    if (!s->grid[row][col].right)
+                    {
+                       return key;
+                    }
                         break;
-                    } 
-                    return x;
                 }else{
                     
-                    if (s->grid[row][col + 1].up + s->grid[row][col + 1].down + s->grid[row][col + 1].right + s->grid[row][col + 1].left == 2)
+                    if (countCellSides(s->grid[row][col + 1]) == 2)
                     {
                         break;
                     }else{
-                        x = applyStateAction( move , s->turn, s);
-                        if(!x){
-                            break;
-                        } 
-                        return x;
+                        if (!s->grid[row][col].right)
+                        {
+                         return key;
+                        }
+                       break;
                     }
                     
                 }
@@ -258,22 +255,22 @@ int helpAi(state *s ,int row , int col){
             case 'l':
                 if (col == 0)
                 {
-                    x = applyStateAction( move , s->turn, s);
-                    if(!x){
+                    if (!s->grid[row][col].left)
+                    {
+                       return key;
+                    }
                         break;
-                    } 
-                    return x;
                 }else{
                     
-                    if (s->grid[row][col - 1].up + s->grid[row][col - 1].down + s->grid[row][col - 1].right + s->grid[row][col - 1].left == 2)
+                    if (countCellSides(s->grid[row ][col - 1]) == 2)
                     {
                         break;
                     }else{
-                        x = applyStateAction( move , s->turn, s);
-                        if(!x){
-                            break;
-                        } 
-                        return x;
+                        if (!s->grid[row][col].left)
+                        {
+                        return key;
+                        }
+                        break;
                     }
                     
                 } 
@@ -287,7 +284,7 @@ int helpAi(state *s ,int row , int col){
     return 0;
 
 }
-
+// Function to shuffle an array of integers (Fisher-Yates shuffle)
 char * beginnerAi(state *s) {
     
     int rowIndices[s->gridSize];
@@ -309,36 +306,54 @@ char * beginnerAi(state *s) {
     // Shuffle row and column indices
     shuffleArray(rowIndices, s->gridSize);
     shuffleArray(colIndices, s->gridSize);
-
+    char *action = malloc(3 * sizeof(char));
+    char key ;
     for (int i = 0; i < s->gridSize; i++) { 
         for (int j = 0; j < s->gridSize; j++) {
             int row = rowIndices[i];
-            int col = rowIndices[j];
+            int col = colIndices[j];
+            action[0] = row + 1;
+            action[1] = col + 1; 
 
             if (countCellSides(s->grid[row][col]) == 3) {
-                
-                return generateActionOfAI(s,row , col,0);
+               if (!s->grid[row][col].up)
+               {
+                action[2] = 'u';
+                return action;
+               }else if (!s->grid[row][col].down)
+               {
+                action[2] = 'd';
+                return action;
+               }else if (!s->grid[row][col].right)
+               {
+                action[2] = 'r';
+                return action;
+               }else{
+                action[2] = 'l';
+                return action;
+               }   
             }
             
             
         }
     }
 
-
     for (int i = 0; i < s->gridSize; i++)
     {
         for (int j = 0; j < s->gridSize; j++) {
             int row = rowIndices[i];
             int col = rowIndices[j];
+            action[0] = row + 1;
+            action[1] = col + 1;
 
             if (countCellSides(s->grid[row][col]) == 1) {
-
-                    state *newState = copyState(s);
-                    if (helpAi(newState,row,col)){
-                        freeState(newState);
-                        return generateActionOfAI(s,row ,col , 0);
-                    } 
-                     freeState(newState);
+                key = helpAi(s,row,col); 
+                if (key)
+                {
+                    action[2] = key;
+                    return action;
+                }
+                
             }  
         }
     }
@@ -348,35 +363,67 @@ char * beginnerAi(state *s) {
         for (int j = 0; j < s->gridSize; j++) {
             int row = rowIndices[i];
             int col = rowIndices[j];
+            action[0] = row + 1;
+            action[1] = col + 1;
 
             if (countCellSides(s->grid[row][col]) == 0) {
+                key = helpAi(s,row,col); 
+                if (key)
+                {
+                    action[2] = key;
+                    return action;
+                }
                 
-                    state *newState = copyState(s);
-                    if (helpAi(newState,row,col)){
-                        freeState(newState);
-                        return generateActionOfAI(s,row ,col , 0);
-                    } 
-                     freeState(newState);
-                    
+            }        
             }  
-        }
     }
 
-    for (int i = 0; i < s->gridSize; i++)  ////////////
+    char place[] = {'u', 'l', 'd', 'r'};
+    int charIndices[4];
+    for(int r = 0; r < 4; r++){
+    charIndices[r] = r ;
+    }
+    shuffleArray(charIndices, 4);
+
+    for (int i = 0; i < s->gridSize; i++)  //////////// random chosen
     {
         for (int j = 0; j < s->gridSize; j++) {
 
             int row = rowIndices[i];
-            int col = rowIndices[j];
-            if (countCellSides(s->grid[row][col]) == 2) {
+            int col = colIndices[j];
+            action[0]= row + 1;
+            action[1]= col + 1;
+
+            
                 
-                return generateActionOfAI(s,row , col,0);
-            }
+                    if (!s->grid[row][col].up) {
+                        action[2] = 'u';
+                        return action;
+                    }
+             
+                    else if (!s->grid[row][col].down) {
+                        action[2] = 'd';
+                        return action;
+                    }
+                    else if (!s->grid[row][col].right) {
+                        action[2] = 'r';
+                        return action;
+                    }
+                    else if (!s->grid[row][col].left) {
+                        action[2] = 'l';
+                        return action;
+                    }
+                
+
+            
+        
         }
     }
 
         return NULL; //end of the game
 }
+
+
 
 int ** constructCellsScores(int size){
     int ** cellsScores = (int **)malloc(size * sizeof(int *));
