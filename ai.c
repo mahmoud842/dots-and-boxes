@@ -3,7 +3,7 @@
 #include "ai.h"
 #include "ai.h"
 #include "structures.h"
-#include<time.h>
+#include <time.h>
 
 // intialized with zeros using calloc
 char ** constructVisited(int size){
@@ -189,45 +189,42 @@ int helpAi(state *s ,int row , int col){
         switch (key) {
             case 'u':
                 if (row == 0)
-                {   
-                    x = applyStateAction( move , s->turn, s);
-                    if(!x){
+                {  
+                    if(s->grid[row][col].up){
                         break;
                     } 
-                    return x;
-                }else{
-                    
-                    if (s->grid[row - 1][col].up + s->grid[row - 1][col].down + s->grid[row - 1][col].right + s->grid[row - 1][col].left == 2)
+                    return 1;
+                }
+                else{
+                    if (countCellSide(s->grid[row-1][col]) == 2)
                     {
                         break;
-                    }else{
-                        x = applyStateAction( move , s->turn, s);
-                        if(!x){
+                    }
+                    else{
+                        if (s->grid[row][col].up){
                             break;
-                        } 
-                        return x;
+                        }
+                        return 1;
                     }
                     
                 }
             case 'd':
                 if (row == s->gridSize - 1)
                 {
-                   x = applyStateAction( move , s->turn, s);
-                    if(!x){
+                    if (s->grid[row][col].down){
                         break;
-                    } 
-                    return x;
+                    }
+                    return 1;
                 }else{
                     
-                    if (s->grid[row + 1][col].up + s->grid[row + 1][col].down + s->grid[row + 1][col].right + s->grid[row + 1][col].left == 2)
+                    if (countCellSide(s->grid[row + 1][col]) == 2)
                     {
                         break;
                     }else{
-                        x = applyStateAction( move , s->turn, s);
-                        if(!x){
+                        if (s->grid[row][col].down){
                             break;
-                        } 
-                        return x;
+                        }
+                        return 1;
                     }
                     
                 }
@@ -235,22 +232,20 @@ int helpAi(state *s ,int row , int col){
             case 'r':
                 if (col == s->gridSize - 1)
                 {
-                    x = applyStateAction( move , s->turn, s);
-                    if(!x){
+                    if (s->grid[row][col].right){
                         break;
-                    } 
-                    return x;
+                    }
+                    return 1;
                 }else{
                     
-                    if (s->grid[row][col + 1].up + s->grid[row][col + 1].down + s->grid[row][col + 1].right + s->grid[row][col + 1].left == 2)
+                    if (countCellSide(s->grid[row][col + 1]) == 2)
                     {
                         break;
                     }else{
-                        x = applyStateAction( move , s->turn, s);
-                        if(!x){
+                        if (s->grid[row][col].right){
                             break;
-                        } 
-                        return x;
+                        }
+                        return 1;
                     }
                     
                 }
@@ -258,11 +253,10 @@ int helpAi(state *s ,int row , int col){
             case 'l':
                 if (col == 0)
                 {
-                    x = applyStateAction( move , s->turn, s);
-                    if(!x){
+                    if (s->grid[row][col].left){
                         break;
-                    } 
-                    return x;
+                    }
+                    return 1;
                 }else{
                     
                     if (s->grid[row][col - 1].up + s->grid[row][col - 1].down + s->grid[row][col - 1].right + s->grid[row][col - 1].left == 2)
@@ -305,7 +299,6 @@ char * beginnerAi(state *s) {
         colIndices[j] = j;
     }
 
-
     // Shuffle row and column indices
     shuffleArray(rowIndices, s->gridSize);
     shuffleArray(colIndices, s->gridSize);
@@ -316,7 +309,6 @@ char * beginnerAi(state *s) {
             int col = rowIndices[j];
 
             if (countCellSides(s->grid[row][col]) == 3) {
-                
                 return generateActionOfAI(s,row , col,0);
             }
             
@@ -338,7 +330,7 @@ char * beginnerAi(state *s) {
                         freeState(newState);
                         return generateActionOfAI(s,row ,col , 0);
                     } 
-                     freeState(newState);
+                    freeState(newState);
             }  
         }
     }
@@ -348,9 +340,7 @@ char * beginnerAi(state *s) {
         for (int j = 0; j < s->gridSize; j++) {
             int row = rowIndices[i];
             int col = rowIndices[j];
-
             if (countCellSides(s->grid[row][col]) == 0) {
-                
                     state *newState = copyState(s);
                     if (helpAi(newState,row,col)){
                         freeState(newState);
@@ -365,11 +355,9 @@ char * beginnerAi(state *s) {
     for (int i = 0; i < s->gridSize; i++)  ////////////
     {
         for (int j = 0; j < s->gridSize; j++) {
-
             int row = rowIndices[i];
             int col = rowIndices[j];
             if (countCellSides(s->grid[row][col]) == 2) {
-                
                 return generateActionOfAI(s,row , col,0);
             }
         }
