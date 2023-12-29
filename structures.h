@@ -17,7 +17,7 @@ typedef struct cell{
 
 typedef struct state{
     char gridSize; // diminsions
-    char gameMode; // 0 for human, 1 for AI easy, 2 for AI hard
+    char gameMode; // 1 for human, 2 for AI easy, 3 for AI hard
     int time; // number of sec passed and then we will calculate the minutes from it.
     cell ** grid; // grid actuall size in bytes = sizeof(cell) * height * width (for loading and writing to files)
 
