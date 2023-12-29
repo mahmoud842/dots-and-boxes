@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 #include "structures.h"
 #include "inputValidation.h"
 #include "display.h"
@@ -177,6 +178,7 @@ int * startGame(state * s, options * gameOptions){
     char saveGameFlag = 0;
     char elseFlag = 0;
 
+    
     while(!playerWon){
         displayState(s);
 
@@ -208,6 +210,7 @@ int * startGame(state * s, options * gameOptions){
             int actionFlag = applyStateAction(action, s->turn, s);
             if (actionFlag == 1){
                 s->turn = (s->turn == 1) ? 2 : 1;
+                pushStateToRedoUndo(uR, copyState(s));
             }
             else if(actionFlag == 3){
                 displayState(s);
@@ -229,6 +232,7 @@ int * startGame(state * s, options * gameOptions){
             int actionFlag = applyStateAction(action, s->turn, s);
             if (actionFlag == 1){
                 s->turn = (s->turn == 1) ? 2 : 1;
+                pushStateToRedoUndo(uR, copyState(s));
             }
             else if(actionFlag == 3){
                 displayState(s);
@@ -244,7 +248,10 @@ int * startGame(state * s, options * gameOptions){
             }
         }
         else {
+            clock_t start = clock();
             char inGameMenu = displayInGameMenu();
+            clock_t timeTillNow = clock();
+            s->time += (timeTillNow - start) / CLOCKS_PER_SEC;
 
             // palce a line
             if (inGameMenu == 1){
@@ -256,8 +263,12 @@ int * startGame(state * s, options * gameOptions){
                         printf("invalid action!\n");
                         invalidActionFlag = 0;
                     }
-                    printf("insert where you want to place your line (cell position x,y then the side u for up, d for down, l for left, r for right)\n");
+                    printf("insert where you want to place your line (cell position row,col then the side u for up, d for down, l for left, r for right)\n");
+                    clock_t start = clock();
                     action = makeMoveInput(gameOptions->gridSize);
+                    clock_t timeTillNow = clock();
+                    s->time += (timeTillNow - start) / CLOCKS_PER_SEC;
+
                     char chainFlag = checkChain(s, action);
                     if (chainFlag == 1){
                         if (s->numberOfRemainingCells == 0)
@@ -276,7 +287,8 @@ int * startGame(state * s, options * gameOptions){
                 
                 if (actionFlag == 1){
                     s->turn = (s->turn == 1) ? 2 : 1;
-                    pushStateToRedoUndo(uR, copyState(s));
+                    if (gameOptions->gameMode == 1)
+                        pushStateToRedoUndo(uR, copyState(s));
                 }
                 else if (actionFlag == 2){
                     pushStateToRedoUndo(uR, copyState(s));
@@ -299,6 +311,7 @@ int * startGame(state * s, options * gameOptions){
             else if (inGameMenu == 2){
                 state * tmpS = getUndo(uR);
                 if (tmpS != NULL){
+                    tmpS->time = s->time;
                     freeState(s);
                     s = tmpS;
                 }
@@ -311,6 +324,7 @@ int * startGame(state * s, options * gameOptions){
             else if (inGameMenu == 3){
                 state * tmpS = getRedo(uR);
                 if (tmpS != NULL){
+                    tmpS->time = s->time;
                     freeState(s);
                     s = tmpS;
                 }
