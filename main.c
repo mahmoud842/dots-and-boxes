@@ -8,6 +8,8 @@
 #include "saveAndLoad.h"
 #include "ai.h"
 
+// testestset
+
 // compile command:
 // gcc main.c structures.c inputValidation.c display.c saveAndLoad.c ai.c -o dotsAndLines
 // run: ./dotsAndLines
