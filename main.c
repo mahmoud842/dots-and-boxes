@@ -97,7 +97,6 @@ void displayWonAndLeaderBoard(int * playerWonWithScore, options * gameOptions){
         if (playerWonWithScore[0] == 1 || (playerWonWithScore[0] == 2 && gameOptions->gameMode == 1)){
             int index = -1;
             scores * allScores = leaderBoard(playerWonWithScore[0], playerWonWithScore[1], &index);
-            system("cls");
             displayTopTen(allScores, index);
             saveScoresToFile(leaderBoardFile, allScores);
         }
