@@ -56,90 +56,8 @@ int main(){
     return 0;
 }
 
-<<<<<<< HEAD
-void displayWonAndLeaderBoard(int * playerWonWithScore, options * gameOptions){
-    if (playerWonWithScore != NULL){
-        if (playerWonWithScore[0] == 1){
-            printf(RED"player %d\x1b[0m win\n", playerWonWithScore[0]);
-        }
-        else {
-            if (gameOptions->gameMode == 2){
-                printf(BLUE"AI\x1b[0m win\n");
-            }
-            else {
-                printf(BLUE"player %d\x1b[0m win\n", playerWonWithScore[0]);
-            }
-        }
-        
-        // handle the leader board part
-        if (playerWonWithScore[0] == 1 || (playerWonWithScore[0] == 2 && gameOptions->gameMode == 1)){
-            int index = -1;
-            scores * allScores = leaderBoard(playerWonWithScore[0], playerWonWithScore[1], &index);
-            displayTopTen(allScores, index);
-            saveScoresToFile(leaderBoardFile, allScores);
-        }
-        else {
-            scores * allScores = loadAndSortScores(leaderBoardFile);
-            if (allScores == NULL){
-                printf("The leader Board file is not found or corrupted\n");
-                printf(YELLOW"a new file will be made\n"RESET);
-            }
-            else {
-                displayTopTen(allScores, -1);
-            }
-        }
-        printf("enter 1 to got to main menu\n");
-        char t = mainMenuInput(1);
-    }
-}
-
-scores * leaderBoard(char playerWon, int scoreOfWinner, int * index){
-    scores * allScores = loadAndSortScores(leaderBoardFile);
-
-    if (allScores == NULL){
-        printf("The leader Board file is not found or corrupted\n");
-        printf(YELLOW"a new file will be made\n"RESET);
-    }
-
-    printf("player %d Enter your name: ", playerWon);
-    char * userName = takeUserName();
-
-    if (!userInScores(allScores, userName, scoreOfWinner, index)){
-        allScores = addUserToScores(allScores, userName, scoreOfWinner, index);
-    }
-
-    free(userName);
-    return allScores;
-}
-
-// some lines to handle tie i didn't want to change in startGame so i made this function to do the logic then call startGame.
-void startGameMask(state * s, options * gameOptions){
-    int * playerWonWithScore = startGame(s, gameOptions);
-    if (playerWonWithScore == NULL) return;
-    if (playerWonWithScore[0] == 0){
-        printf(YELLOW"Tie\n"RESET);
-        scores * allScores = loadAndSortScores(leaderBoardFile);
-        if (allScores == NULL){
-            printf("The leader Board file is not found or corrupted or empty\n");
-        }
-        else {
-            displayTopTen(allScores, -1);
-        }
-        printf("enter 1 to got to main menu\n");
-        char t = mainMenuInput(1);
-    }
-    else if (playerWonWithScore != NULL){
-        displayWonAndLeaderBoard(playerWonWithScore, gameOptions);
-    }
-}
-
-int * startGame(state * s, options * gameOptions){
-
-    if (s == NULL){
-=======
 void gameLoop(state * _state, options * gameOptions){
     if (_state == NULL){
->>>>>>> mainReWork
         // construct intial state
         _state = constructState(gameOptions->gridSize);
         _state->turn = 1; // 1 means player 1's turn, 2 means player 2 or AI turn
@@ -275,7 +193,9 @@ char applyActionFlag(state * _state, undoRedo * _undoRedoStruct, int actionFlag)
         if (_state->turn == 1 || (_state->turn == 2 && _state->gameMode == 1))
             pushStateToRedoUndo(_undoRedoStruct, copyState(_state));
     }
-    // no need to check if actionFlag = 2 because if it is equal 2 I don't want to change anything.
+    if (actionFlag == 2 && _state->gameMode == 1){
+        pushStateToRedoUndo(_undoRedoStruct, copyState(_state));
+    }
     // no condtion for actionFlag = 0 because it is garanted that the AI will not make an invalid action.
     else if(actionFlag == 3){
         if (_state->p1Score > _state->p2Score){
