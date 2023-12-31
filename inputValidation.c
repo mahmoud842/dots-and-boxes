@@ -160,7 +160,8 @@ char * takeUserName(){
             errorFlag = 1;
         }
 
-        else if(inputSize > MAX_CHAR_OF_NAME - 1){
+        // no -1 because newLine character fgets take as part of the string
+        else if(inputSize > MAX_CHAR_OF_NAME){
             overSize = 1;
             while(buffer[strlen(buffer) - 1] != '\n'){
                 if (!fgets(buffer, BUFSIZE, stdin)) break; // if for reaching the end of a file and there is no files here.
@@ -177,7 +178,6 @@ char * takeUserName(){
                 }
             }
             
-            // not handled yet if there is more than one space next to each other
             if(!differentCharFlag){
                 char * name = (char *)malloc(MAX_CHAR_OF_NAME * sizeof(char));
                 char spaceFlag = 1; // if spaceFlag = 1 means I don't accept space now
