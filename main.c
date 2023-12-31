@@ -12,12 +12,15 @@
 // gcc main.c structures.c inputValidation.c display.c saveAndLoad.c ai.c -o dotsAndLines
 // run: ./dotsAndLines
 
-int * startGame(state * s, options * gameOptions);
-scores * leaderBoard(char playerWon, int scoreOfWinner, int * index);
-void displayWonAndLeaderBoard(int * playerWonWithScore, options * gameOptions);
-void startGameMask(state * s, options * gameOptions);
+void gameLoop(state * _state, options * gameOptions);
+char applyActionFlag(state * _state, undoRedo * _undoRedoStruct, int actionFlag);
+int makeAnAction(state * _state, options * gameOptions);
+char validateUndoRedo(state ** _state, state ** undoRedoState);
+void continueInput();
+void displayWinner(int winner, char gameMode);
+void leaderBoard(char winner, char * playerName, int playerScore);
+state * loadGame(options * gameOptions);
 
-// need to place them in another place!
 char leaderBoardFile[] = "highScores.bin";
 char saveGameFilesNames[5][14] = {"savegame1.bin", "savegame2.bin", "savegame3.bin", "savegame4.bin", "savegame5.bin"};
 
@@ -28,49 +31,23 @@ int main(){
         intializeOptionsWith0(gameOptions);
         displayMainMenu(gameOptions);
         if (gameOptions->start){
-            startGameMask(NULL, gameOptions);
+            gameLoop(NULL, gameOptions);
         }
         else if (gameOptions->loadGame){
-            state * s = NULL;
-            char fileIsBad = 0;
-            char input = 0;
-            do {
-                if (fileIsBad){
-                    printf("This file is corrupted please choose another file: \n");
-                }
-                input = displayAvailableFilesToLoadState(saveGameFilesNames);
-                if (input == 6){
-                    break;
-                }
-                s = loadStateFromFile(saveGameFilesNames[input - 1]);
-                if (s == NULL){
-                    fileIsBad = 1;
-                }
-            } while (fileIsBad);
-            if (input != 6){
-                gameOptions->gameMode = s->gameMode;
-                gameOptions->gridSize = s->gridSize;
-                startGameMask(s, gameOptions);
-            }
-
+            state * loadedState = loadGame(gameOptions);
+            if (loadedState != NULL)
+                gameLoop(loadedState, gameOptions);
         }
         else if(gameOptions->displayTopTen){
-            scores * allScores = loadAndSortScores(leaderBoardFile);
-            if (allScores == NULL){
-                printf(YELLOW"The leader Board file is not found or corrupted or empty\n"RESET);
-            }
-            else {
-                displayTopTen(allScores, -1);
-            }
-            printf("enter 1 to return to main menu\n");
-            char t = mainMenuInput(1);
+            leaderBoard(0, NULL, -1);
+            continueInput();
         }
         else if(gameOptions->exit){
             printf("Thank You for playing the game\n");
             break;
         }
         else {
-            // this condition was made to for debugging unlikly to happen in the game.
+            // this condition was made for debugging (unlikly to happen in the game).
             printf("error happened in the first gamee options input\n");
             break;
         }
@@ -79,6 +56,7 @@ int main(){
     return 0;
 }
 
+<<<<<<< HEAD
 void displayWonAndLeaderBoard(int * playerWonWithScore, options * gameOptions){
     if (playerWonWithScore != NULL){
         if (playerWonWithScore[0] == 1){
@@ -158,18 +136,22 @@ void startGameMask(state * s, options * gameOptions){
 int * startGame(state * s, options * gameOptions){
 
     if (s == NULL){
+=======
+void gameLoop(state * _state, options * gameOptions){
+    if (_state == NULL){
+>>>>>>> mainReWork
         // construct intial state
-        s = constructState(gameOptions->gridSize);
-        s->turn = 1; // 1 means player 1's turn, 2 means player 2 or AI turn
+        _state = constructState(gameOptions->gridSize);
+        _state->turn = 1; // 1 means player 1's turn, 2 means player 2 or AI turn
         // gameMode: 1 for human, 2 for AI easy, 3 for AI hard
-        s->gameMode = (gameOptions->gameMode == 1) ? (gameOptions->gameMode) : (gameOptions->gameMode + gameOptions->AIDifficulty - 1);
+        _state->gameMode = (gameOptions->gameMode == 1) ? (gameOptions->gameMode) : (gameOptions->gameMode + gameOptions->AIDifficulty - 1);
     }
 
     char playerWon = 0; // 0 means no one won, 1 means player 1 won, 2 means player 2 worn (AI is considered player 2)
     char * action;
 
     // construct undo and redo state
-    undoRedo * uR = constructUndoRedo(gameOptions->gridSize, copyState(s));
+    undoRedo * undoRedo = constructUndoRedo(gameOptions->gridSize, copyState(_state));
 
     // someFlags for error messages
     char undoFlag = 0;
@@ -177,21 +159,14 @@ int * startGame(state * s, options * gameOptions){
     char saveGameFlag = 0;
     char elseFlag = 0;
 
-    
     while(!playerWon){
-        displayState(s);
+        displayState(_state);
 
-        if (elseFlag){
-            printf("else error\n");
-            elseFlag = 0;
-        }
-
+        // error messages:
         if (saveGameFlag){
             printf(YELLOW"game saved successfully\n"RESET);
             saveGameFlag = 0;
         }
-
-        // error messages:
         if (undoFlag){
             printf(YELLOW"no undo available\n"RESET);
             undoFlag = 0;
@@ -201,135 +176,45 @@ int * startGame(state * s, options * gameOptions){
             redoFlag = 0;
         }
 
-
-        // Easy AI turn
-        if (s->turn == 2 && s->gameMode == 2){
-      
-            char * action = beginnerAi(s);
-            int actionFlag = applyStateAction(action, s->turn, s);
-            if (actionFlag == 1){
-                s->turn = (s->turn == 1) ? 2 : 1;
-                pushStateToRedoUndo(uR, copyState(s));
-            }
-            else if(actionFlag == 3){
-                displayState(s);
-                if (s->p1Score > s->p2Score){
-                    playerWon = 1;
-                }
-                else if (s->p1Score < s->p2Score){
-                    playerWon = 2;
-                }
-                else {
-                    playerWon = 3;
-                }
-            }
-
-        }
-        // hard AI turn
-        else if (s->turn == 2 && s->gameMode == 3){
-            char * action = hardAIAction(s);
-            int actionFlag = applyStateAction(action, s->turn, s);
-            if (actionFlag == 1){
-                s->turn = (s->turn == 1) ? 2 : 1;
-                pushStateToRedoUndo(uR, copyState(s));
-            }
-            else if(actionFlag == 3){
-                displayState(s);
-                if (s->p1Score > s->p2Score){
-                    playerWon = 1;
-                }
-                else if (s->p1Score < s->p2Score){
-                    playerWon = 2;
-                }
-                else {
-                    playerWon = 3;
-                }
-            }
+        // AI turn
+        if (_state->turn == 2 && _state->gameMode != 1){
+            char * action;
+            
+            if (_state->gameMode == 2)
+                action = beginnerAi(_state);
+            else 
+                action = hardAIAction(_state);
+            
+            int actionFlag = applyStateAction(action, _state->turn, _state);
+            playerWon = applyActionFlag(_state, undoRedo, actionFlag);
+            if (playerWon)
+                displayState(_state);
         }
         else {
             clock_t start = clock();
-            char inGameMenu = displayInGameMenu();
+            char inGameMenu = displayInGameMenu(); // displays ingame menu and take input
             clock_t timeTillNow = clock();
-            s->time += (timeTillNow - start) / CLOCKS_PER_SEC;
+            _state->time += (timeTillNow - start) / CLOCKS_PER_SEC;
 
             // palce a line
             if (inGameMenu == 1){
                 char invalidActionFlag = 0;
                 char actionFlag = 0;
 
-                do {
-                    if (invalidActionFlag){
-                        printf("invalid action!\n");
-                        invalidActionFlag = 0;
-                    }
-                    printf("insert where you want to place your line (cell position row,col then the side u for up, d for down, l for left, r for right)\n");
-                    clock_t start = clock();
-                    action = makeMoveInput(gameOptions->gridSize);
-                    clock_t timeTillNow = clock();
-                    s->time += (timeTillNow - start) / CLOCKS_PER_SEC;
-
-                    char chainFlag = checkChain(s, action);
-                    if (chainFlag == 1){
-                        if (s->numberOfRemainingCells == 0)
-                            actionFlag = 3;
-                        else 
-                            actionFlag = 2;
-                    }
-                    else if (chainFlag == 0){
-                        actionFlag = applyStateAction(action, s->turn, s);
-                    }
-                    if (actionFlag == 0){
-                        invalidActionFlag = 1;
-                        free(action);
-                    }
-                } while(invalidActionFlag);
-                
-                if (actionFlag == 1){
-                    s->turn = (s->turn == 1) ? 2 : 1;
-                    if (gameOptions->gameMode == 1)
-                        pushStateToRedoUndo(uR, copyState(s));
-                }
-                else if (actionFlag == 2){
-                    pushStateToRedoUndo(uR, copyState(s));
-                }
-                else if(actionFlag == 3){
-                    displayState(s);
-                    if (s->p1Score > s->p2Score){
-                        playerWon = 1;
-                    }
-                    else if (s->p1Score < s->p2Score){
-                        playerWon = 2;
-                    }
-                    else {
-                        playerWon = 3;
-                    }
-                }
+                actionFlag = makeAnAction(_state, gameOptions);
+                playerWon = applyActionFlag(_state, undoRedo, actionFlag);
             }
 
             // undo
             else if (inGameMenu == 2){
-                state * tmpS = getUndo(uR);
-                if (tmpS != NULL){
-                    tmpS->time = s->time;
-                    freeState(s);
-                    s = tmpS;
-                }
-                else {
-                    undoFlag = 1;
-                }
+                state * newState = getUndo(undoRedo);
+                undoFlag = validateUndoRedo(&_state, &newState);
             }
 
             // redo
             else if (inGameMenu == 3){
-                state * tmpS = getRedo(uR);
-                if (tmpS != NULL){
-                    tmpS->time = s->time;
-                    freeState(s);
-                    s = tmpS;
-                }
-                else {
-                    redoFlag = 1;
-                }
+                state * newState = getRedo(undoRedo);
+                redoFlag = validateUndoRedo(&_state, &newState);
             }
 
             // save game
@@ -338,38 +223,182 @@ int * startGame(state * s, options * gameOptions){
                 checkAvailableStateFiles(saveGameFilesNames, availableSaveGameFiles);
                 char fileIndex = displayAvailableFilesToSaveState(saveGameFilesNames, availableSaveGameFiles);
                 if (fileIndex != 6){
-                    saveStateToFile(saveGameFilesNames[fileIndex], s);
+                    saveStateToFile(saveGameFilesNames[fileIndex], _state);
                     saveGameFlag = 1;
                 }
             }
 
             // go to main menu
             else {
-                break;
+                return;
             }
         }
-        
     }
 
-    int * returnValue = NULL;
+    displayState(_state);
+    char winner = (playerWon == 3) ? 0 : playerWon; // 1 if player 1 win, 2 if player 2 or AI win, 0 Tie
+    int winnerScore;
     if (playerWon == 1){
-        returnValue = (int *)malloc(2 * sizeof(int));
-        returnValue[0] = playerWon;
-        returnValue[1] = s->p1Score;
+        winnerScore = _state->p1Score;
     }
     else if (playerWon == 2){
-        returnValue = (int *)malloc(2 * sizeof(int));
-        returnValue[0] = playerWon;
-        returnValue[1] = s->p2Score;
+        winnerScore = _state->p2Score;
     }
-    else if (playerWon == 3){
-        returnValue = (int *)malloc(2 * sizeof(int));
-        returnValue[0] = 0;
-        returnValue[1] = -1;
+    // for tie
+    else {
+        winnerScore = -1;
     }
 
-    freeUndoRedo(uR);
-    freeState(s);
+    freeUndoRedo(undoRedo);
+    freeState(_state);
     
-    return returnValue;
+    displayWinner(winner, gameOptions->gameMode);
+
+    char * userName = NULL;
+    if (winner == 1 || (winner == 2 && gameOptions->gameMode == 1)){
+        printf("player %d Enter your name: ", playerWon);
+        userName = takeUserName();
+    }
+    else winner = 0; // to make AI and Tie the same condition
+    
+    leaderBoard(winner, userName, winnerScore);
+    if (userName != NULL)
+        free(userName);
+
+    continueInput();
+}
+
+char applyActionFlag(state * _state, undoRedo * _undoRedoStruct, int actionFlag){
+    char playerWon = 0;
+    if (actionFlag == 1){
+        _state->turn = (_state->turn == 1) ? 2 : 1;
+        if (_state->turn == 1 || (_state->turn == 2 && _state->gameMode == 1))
+            pushStateToRedoUndo(_undoRedoStruct, copyState(_state));
+    }
+    // no need to check if actionFlag = 2 because if it is equal 2 I don't want to change anything.
+    // no condtion for actionFlag = 0 because it is garanted that the AI will not make an invalid action.
+    else if(actionFlag == 3){
+        if (_state->p1Score > _state->p2Score){
+            playerWon = 1;
+        }
+        else if (_state->p1Score < _state->p2Score){
+            playerWon = 2;
+        }
+        else {
+            playerWon = 3;
+        }
+    }
+    return playerWon;
+}
+
+int makeAnAction(state * _state, options * gameOptions){
+    char invalidActionFlag = 0; // used to break from the do-while loop
+    char actionFlag = 0; // its value indicat the state of the game after the last action
+    char * action = NULL; // stores the place where the user decided to play
+
+    do {
+        if (invalidActionFlag){
+            printf("invalid action!\n");
+            invalidActionFlag = 0;
+        }
+
+        printf("your input should be: \"row col side\" the sides are u for up, d for down, l for left, r for right\n");
+        clock_t start = clock();
+        action = makeMoveInput(gameOptions->gridSize);
+        clock_t timeTillNow = clock();
+        _state->time += (timeTillNow - start) / CLOCKS_PER_SEC;
+
+        char chainFlag = checkChain(_state, action);
+        if (chainFlag == 1){
+            if (_state->numberOfRemainingCells == 0)
+                actionFlag = 3;
+            else 
+                actionFlag = 2;
+        }
+        else if (chainFlag == 0)
+            actionFlag = applyStateAction(action, _state->turn, _state);
+        else 
+            invalidActionFlag = 1;
+
+        if (action != NULL)
+            free(action);
+            
+    } while(invalidActionFlag);
+
+    return actionFlag;
+}
+
+// if the return value of the undo or redo not null then update the 
+char validateUndoRedo(state ** _state, state ** undoRedoState){
+    if (*undoRedoState == NULL)
+        return 1;
+    
+    (*undoRedoState)->time = (*_state)->time;
+    freeState(*_state);
+    *_state = *undoRedoState;
+    return 0;
+}
+
+void displayWinner(int winner, char gameMode){
+    if (winner == 3){
+        printf(YELLOW"Tie\n"RESET);
+    }
+    else if (winner == 1){
+        printf(RED"player 1\x1b[0m win\n");
+    }
+    else if (gameMode == 1){
+        printf(BLUE"player 2\x1b[0m win\n");
+    }
+    else 
+        printf(BLUE"AI\x1b[0m win\n");
+}
+
+void leaderBoard(char winner, char * playerName, int playerScore){
+    scores * allScores = loadAndSortScores(leaderBoardFile);
+    if (allScores == NULL){
+        printf("The leader Board file is not found or empty or corrupted\n");
+        if (winner == 0)
+            return;
+    }
+
+    int index = -1;
+    if (winner != 0){
+        if (!userInScores(allScores, playerName, playerScore, &index)){
+            allScores = addUserToScores(allScores, playerName, playerScore, &index);
+        }
+    }
+
+    displayTopTen(allScores, index);
+    if (winner != 0)
+        saveScoresToFile(leaderBoardFile, allScores);
+}
+
+// this is used to freeze the screen
+void continueInput(){
+    printf("enter 1 to got to main menu\n");
+    char t = mainMenuInput(1);
+}
+
+state * loadGame(options * gameOptions){
+    state * _state = NULL;
+    char fileIsBad = 0;
+    char input = 0;
+    do {
+        if (fileIsBad){
+            printf("This file is corrupted please choose another file: \n");
+        }
+        input = displayAvailableFilesToLoadState(saveGameFilesNames);
+        if (input == 6){
+            break;
+        }
+        _state = loadStateFromFile(saveGameFilesNames[input - 1]);
+        if (_state == NULL){
+            fileIsBad = 1;
+        }
+    } while (fileIsBad);
+    if (input != 6){
+        gameOptions->gameMode = _state->gameMode;
+        gameOptions->gridSize = _state->gridSize;
+    }
+    return _state;
 }
