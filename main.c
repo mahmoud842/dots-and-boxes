@@ -304,8 +304,10 @@ state * loadGame(options * gameOptions){
     char fileIsBad = 0;
     char input = 0;
     do {
+        system("cls");
         if (fileIsBad){
-            printf("This file is corrupted please choose another file: \n");
+            printf(YELLOW"This file is corrupted choose another file\n" RESET);
+            fileIsBad = 0;
         }
         input = displayAvailableFilesToLoadState(saveGameFilesNames);
         if (input == 6){

@@ -255,7 +255,6 @@ char displayInGameMenu(){
 }
 
 char displayAvailableFilesToLoadState(char fileNames[][14]){
-    system("cls");
     char * availableFiles = (char *)calloc(5, sizeof(char));
     checkAvailableStateFiles(fileNames, availableFiles);
     printf("Files List:\n");
@@ -274,7 +273,8 @@ char displayAvailableFilesToLoadState(char fileNames[][14]){
     char emptyFlag = 0;
     do {
         if (emptyFlag){
-            printf("This file is empty choose another file: ");
+            printf(YELLOW"This file is empty\n"RESET);
+            printf("choose another file: ");
             emptyFlag = 0;
         }
         else {
