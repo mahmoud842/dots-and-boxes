@@ -178,6 +178,7 @@ void gameLoop(state * _state, options * gameOptions){
         userName = takeUserName();
     }
     else winner = 0; // to make AI and Tie the same condition
+    
     leaderBoard(winner, userName, winnerScore);
     if (userName != NULL)
         free(userName);
@@ -189,7 +190,8 @@ char applyActionFlag(state * _state, undoRedo * _undoRedoStruct, int actionFlag)
     char playerWon = 0;
     if (actionFlag == 1){
         _state->turn = (_state->turn == 1) ? 2 : 1;
-        pushStateToRedoUndo(_undoRedoStruct, copyState(_state));
+        if (_state->turn == 1 || (_state->turn == 2 && _state->gameMode == 1))
+            pushStateToRedoUndo(_undoRedoStruct, copyState(_state));
     }
     // no need to check if actionFlag = 2 because if it is equal 2 I don't want to change anything.
     // no condtion for actionFlag = 0 because it is garanted that the AI will not make an invalid action.
