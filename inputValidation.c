@@ -160,8 +160,7 @@ char * takeUserName(){
             errorFlag = 1;
         }
 
-        // maybe i should add + 1 here after MAX_CHAR_..
-        else if(inputSize > MAX_CHAR_OF_NAME){
+        else if(inputSize > MAX_CHAR_OF_NAME - 1){
             overSize = 1;
             while(buffer[strlen(buffer) - 1] != '\n'){
                 if (!fgets(buffer, BUFSIZE, stdin)) break; // if for reaching the end of a file and there is no files here.
