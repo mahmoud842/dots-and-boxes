@@ -391,8 +391,6 @@ char * beginnerAi(state *s) {
             int col = colIndices[j];
             action[0]= row + 1;
             action[1]= col + 1;
-
-            
                 
                     if (!s->grid[row][col].up) {
                         action[2] = 'u';
@@ -411,10 +409,6 @@ char * beginnerAi(state *s) {
                         action[2] = 'l';
                         return action;
                     }
-                
-
-            
-        
         }
     }
 
@@ -560,7 +554,6 @@ char * hardAIAction(state * s){
             intializeVisitedWithZeros(visited, s->gridSize);
             countScore = 0;
             AIDFS(newTmpState, visited, i, j, directions, &countScore);
-            // printf("%d ", countScore);
             if (countScore == 0){
                 int numberOfSides = countCellSides(s->grid[i][j]);
                 if (numberOfSides == 4)
@@ -573,17 +566,7 @@ char * hardAIAction(state * s){
             }
             freeState(newTmpState);
         }
-        // printf("\n");
     }
-
-    // test: print cells scores
-    // for (int i = 0; i < s->gridSize; i++){
-    //     for (int j = 0; j < s->gridSize; j++){
-    //         printf("%d ", cellsScores[i][j]);
-    //     }
-    //     printf("\n");
-    // }
-
 
     // select the highest score:
     int maxScore = cellsScores[0][0];

@@ -289,10 +289,6 @@ char userInScores(scores * s, char * userName, int score, int * index){
             if (s->usersScores[i].score < score){
                 s->usersScores[i].score = score;
             }
-<<<<<<< HEAD
-            printf("old index = %d\n", i);
-=======
->>>>>>> mainReWork
             *index = putInPosition(s, i);
             return 1;
         }
